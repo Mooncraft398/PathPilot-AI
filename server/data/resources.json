@@ -1,0 +1,314 @@
+[
+  {
+    "id": "networking-resources",
+    "skill": "Networking",
+    "resources": [
+      {
+        "title": "Cisco Networking Basics",
+        "type": "course",
+        "url": "https://www.netacad.com/courses/networking/networking-basics"
+      },
+      {
+        "title": "Computer Networking - Full Course",
+        "type": "video",
+        "url": "https://www.youtube.com/watch?v=qiQR5rTSshw"
+      },
+      {
+        "title": "IBM SkillsBuild - Networking Fundamentals",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/networking"
+      },
+      {
+        "title": "Professor Messer's Network+ Training",
+        "type": "video",
+        "url": "https://www.professormesser.com/network-plus/n10-008/n10-008-video/n10-008-training-course/"
+      }
+    ]
+  },
+  {
+    "id": "linux-resources",
+    "skill": "Linux",
+    "resources": [
+      {
+        "title": "Linux Journey - Learn Linux",
+        "type": "interactive",
+        "url": "https://linuxjourney.com/"
+      },
+      {
+        "title": "IBM SkillsBuild - Linux Essentials",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/linux"
+      },
+      {
+        "title": "Linux Command Line Basics",
+        "type": "course",
+        "url": "https://www.udacity.com/course/linux-command-line-basics--ud595"
+      },
+      {
+        "title": "OverTheWire: Bandit",
+        "type": "interactive",
+        "url": "https://overthewire.org/wargames/bandit/"
+      }
+    ]
+  },
+  {
+    "id": "python-resources",
+    "skill": "Python",
+    "resources": [
+      {
+        "title": "Python for Everybody",
+        "type": "course",
+        "url": "https://www.py4e.com/"
+      },
+      {
+        "title": "IBM SkillsBuild - Python for Data Science",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/python"
+      },
+      {
+        "title": "Python Official Tutorial",
+        "type": "documentation",
+        "url": "https://docs.python.org/3/tutorial/"
+      },
+      {
+        "title": "Automate the Boring Stuff with Python",
+        "type": "course",
+        "url": "https://automatetheboringstuff.com/"
+      }
+    ]
+  },
+  {
+    "id": "sql-resources",
+    "skill": "SQL",
+    "resources": [
+      {
+        "title": "SQLBolt - Learn SQL Interactively",
+        "type": "interactive",
+        "url": "https://sqlbolt.com/"
+      },
+      {
+        "title": "IBM SkillsBuild - SQL Fundamentals",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/sql"
+      },
+      {
+        "title": "W3Schools SQL Tutorial",
+        "type": "interactive",
+        "url": "https://www.w3schools.com/sql/"
+      },
+      {
+        "title": "Khan Academy - Intro to SQL",
+        "type": "course",
+        "url": "https://www.khanacademy.org/computing/computer-programming/sql"
+      }
+    ]
+  },
+  {
+    "id": "react-resources",
+    "skill": "React",
+    "resources": [
+      {
+        "title": "React Official Documentation",
+        "type": "documentation",
+        "url": "https://react.dev/learn"
+      },
+      {
+        "title": "React Tutorial for Beginners",
+        "type": "video",
+        "url": "https://www.youtube.com/watch?v=SqcY0GlETPk"
+      },
+      {
+        "title": "freeCodeCamp - Front End Development Libraries",
+        "type": "course",
+        "url": "https://www.freecodecamp.org/learn/front-end-development-libraries/"
+      },
+      {
+        "title": "Scrimba - Learn React for Free",
+        "type": "interactive",
+        "url": "https://scrimba.com/learn/learnreact"
+      }
+    ]
+  },
+  {
+    "id": "git-resources",
+    "skill": "Git",
+    "resources": [
+      {
+        "title": "Git Official Documentation",
+        "type": "documentation",
+        "url": "https://git-scm.com/doc"
+      },
+      {
+        "title": "Learn Git Branching",
+        "type": "interactive",
+        "url": "https://learngitbranching.js.org/"
+      },
+      {
+        "title": "GitHub Skills",
+        "type": "interactive",
+        "url": "https://skills.github.com/"
+      },
+      {
+        "title": "Git and GitHub for Beginners",
+        "type": "video",
+        "url": "https://www.youtube.com/watch?v=RGOj5yH7evk"
+      }
+    ]
+  },
+  {
+    "id": "troubleshooting-resources",
+    "skill": "Troubleshooting",
+    "resources": [
+      {
+        "title": "IBM SkillsBuild - IT Support Fundamentals",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/it-support"
+      },
+      {
+        "title": "Google IT Support Professional Certificate",
+        "type": "course",
+        "url": "https://www.coursera.org/professional-certificates/google-it-support"
+      },
+      {
+        "title": "CompTIA A+ Training Course",
+        "type": "video",
+        "url": "https://www.professormesser.com/free-a-plus-training/220-1101/220-1101-video/220-1101-training-course/"
+      },
+      {
+        "title": "Microsoft Learn - Troubleshooting Basics",
+        "type": "course",
+        "url": "https://learn.microsoft.com/en-us/training/paths/troubleshoot-microsoft-365/"
+      }
+    ]
+  },
+  {
+    "id": "cybersecurity-resources",
+    "skill": "Cybersecurity",
+    "resources": [
+      {
+        "title": "IBM SkillsBuild - Cybersecurity Fundamentals",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/cybersecurity"
+      },
+      {
+        "title": "TryHackMe - Complete Beginner Path",
+        "type": "interactive",
+        "url": "https://tryhackme.com/path/outline/beginner"
+      },
+      {
+        "title": "Cybrary - Introduction to IT & Cybersecurity",
+        "type": "course",
+        "url": "https://www.cybrary.it/course/introduction-to-it-and-cybersecurity"
+      },
+      {
+        "title": "CISA Cybersecurity Resources",
+        "type": "documentation",
+        "url": "https://www.cisa.gov/cybersecurity-training-exercises"
+      }
+    ]
+  },
+  {
+    "id": "cloud-basics-resources",
+    "skill": "Cloud Basics",
+    "resources": [
+      {
+        "title": "AWS Skill Builder - Cloud Essentials",
+        "type": "course",
+        "url": "https://explore.skillbuilder.aws/learn/course/external/view/elearning/134/aws-cloud-practitioner-essentials"
+      },
+      {
+        "title": "Microsoft Learn - Azure Fundamentals",
+        "type": "course",
+        "url": "https://learn.microsoft.com/en-us/training/paths/az-900-describe-cloud-concepts/"
+      },
+      {
+        "title": "Google Cloud Skills Boost",
+        "type": "course",
+        "url": "https://www.cloudskillsboost.google/paths/8"
+      },
+      {
+        "title": "IBM SkillsBuild - Cloud Computing Basics",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/cloud-computing"
+      }
+    ]
+  },
+  {
+    "id": "excel-resources",
+    "skill": "Excel",
+    "resources": [
+      {
+        "title": "Microsoft Learn - Excel Training",
+        "type": "course",
+        "url": "https://support.microsoft.com/en-us/office/excel-video-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb"
+      },
+      {
+        "title": "Excel Easy - Free Tutorial",
+        "type": "interactive",
+        "url": "https://www.excel-easy.com/"
+      },
+      {
+        "title": "IBM SkillsBuild - Data Analysis with Excel",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/data-analysis"
+      },
+      {
+        "title": "Chandoo.org - Excel Tips and Tutorials",
+        "type": "documentation",
+        "url": "https://chandoo.org/wp/excel-tutorials/"
+      }
+    ]
+  },
+  {
+    "id": "security-monitoring-resources",
+    "skill": "Security Monitoring",
+    "resources": [
+      {
+        "title": "IBM SkillsBuild - Security Operations Center",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/cybersecurity"
+      },
+      {
+        "title": "TryHackMe - SOC Level 1 Path",
+        "type": "interactive",
+        "url": "https://tryhackme.com/path/outline/soclevel1"
+      },
+      {
+        "title": "Splunk Fundamentals",
+        "type": "course",
+        "url": "https://www.splunk.com/en_us/training/free-courses/splunk-fundamentals-1.html"
+      },
+      {
+        "title": "Security Blue Team - Introduction to SIEM",
+        "type": "course",
+        "url": "https://www.securityblue.team/courses"
+      }
+    ]
+  },
+  {
+    "id": "incident-response-resources",
+    "skill": "Incident Response",
+    "resources": [
+      {
+        "title": "IBM SkillsBuild - Incident Response Fundamentals",
+        "type": "course",
+        "url": "https://skillsbuild.org/students/course-catalog/cybersecurity"
+      },
+      {
+        "title": "SANS Cyber Aces - Incident Response",
+        "type": "course",
+        "url": "https://www.cyberaces.org/courses.html"
+      },
+      {
+        "title": "TryHackMe - Cyber Defense Path",
+        "type": "interactive",
+        "url": "https://tryhackme.com/path/outline/blueteam"
+      },
+      {
+        "title": "NIST Incident Response Guide",
+        "type": "documentation",
+        "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf"
+      }
+    ]
+  }
+]
