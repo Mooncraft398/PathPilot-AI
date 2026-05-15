@@ -77,4 +77,26 @@ class HealthResponse(BaseModel):
     status: str
     message: str
 
+
+class GitHubRepository(BaseModel):
+    """GitHub repository information"""
+    name: str
+    description: Optional[str]
+    stars: int
+    language: Optional[str]
+    url: str
+
+
+class GitHubProjectsResponse(BaseModel):
+    """Response model for GitHub projects search"""
+    skill: str
+    repositories: List[GitHubRepository]
+    total_count: int
+
+
+class ErrorResponse(BaseModel):
+    """Error response model"""
+    error: str
+    detail: Optional[str] = None
+
 # Made with Bob

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models.schemas import HealthResponse
-from routes import pathways
+from routes import pathways, github_projects
 
 # Create FastAPI app
 app = FastAPI(
@@ -26,6 +26,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(pathways.router)
+app.include_router(github_projects.router)
 
 
 @app.get("/", response_model=HealthResponse)
