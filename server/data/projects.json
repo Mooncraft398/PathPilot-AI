@@ -1,0 +1,254 @@
+[
+  {
+    "id": "networking-projects",
+    "skill": "Networking",
+    "projects": [
+      {
+        "title": "Home Network Setup and Documentation",
+        "description": "Design and document your home network topology, including router configuration, subnet planning, and device inventory. Create a network diagram showing all connections.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Network Packet Analysis with Wireshark",
+        "description": "Capture and analyze network traffic using Wireshark. Identify different protocols (HTTP, DNS, TCP, UDP) and document your findings with screenshots and explanations.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Build a Virtual Network Lab",
+        "description": "Use VirtualBox or GNS3 to create a virtual network with multiple subnets, routers, and switches. Configure routing protocols and test connectivity between networks.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "linux-projects",
+    "skill": "Linux",
+    "projects": [
+      {
+        "title": "Linux Command Line Automation",
+        "description": "Create a collection of bash scripts to automate common system administration tasks like backups, log rotation, and user management. Document each script with comments.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Web Server Setup and Hardening",
+        "description": "Install and configure a LAMP (Linux, Apache, MySQL, PHP) stack on a Linux server. Implement security best practices including firewall rules, SSL certificates, and regular updates.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Linux System Monitoring Dashboard",
+        "description": "Build a custom system monitoring solution using tools like Prometheus and Grafana. Monitor CPU, memory, disk usage, and network traffic with automated alerts.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "python-projects",
+    "skill": "Python",
+    "projects": [
+      {
+        "title": "Personal Budget Tracker",
+        "description": "Create a command-line application to track income and expenses. Use Python to read/write data to CSV files, calculate totals, and generate monthly reports.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Web Scraper for Job Listings",
+        "description": "Build a web scraper using BeautifulSoup or Scrapy to collect job postings from career websites. Store data in a database and create a simple search interface.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Data Analysis Dashboard with Flask",
+        "description": "Create a web-based data analysis dashboard using Flask, Pandas, and Plotly. Allow users to upload CSV files, perform analysis, and visualize results with interactive charts.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "sql-projects",
+    "skill": "SQL",
+    "projects": [
+      {
+        "title": "Library Management Database",
+        "description": "Design and implement a database schema for a library system with tables for books, members, and loans. Write SQL queries to manage checkouts, returns, and overdue items.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "E-commerce Sales Analysis",
+        "description": "Create a database with sample e-commerce data (customers, orders, products). Write complex SQL queries to analyze sales trends, customer behavior, and product performance.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Data Warehouse with ETL Pipeline",
+        "description": "Build a data warehouse schema with fact and dimension tables. Implement an ETL pipeline to extract data from multiple sources, transform it, and load it for analysis.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "react-projects",
+    "skill": "React",
+    "projects": [
+      {
+        "title": "Personal Portfolio Website",
+        "description": "Build a responsive portfolio website using React. Include sections for projects, skills, and contact information. Deploy to GitHub Pages or Netlify.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Task Management Application",
+        "description": "Create a full-featured task manager with React. Implement features like adding/editing/deleting tasks, filtering, sorting, and local storage persistence.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Real-time Chat Application",
+        "description": "Build a real-time chat app using React and WebSockets. Include features like multiple chat rooms, user authentication, message history, and online status indicators.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "git-projects",
+    "skill": "Git",
+    "projects": [
+      {
+        "title": "Open Source Contribution",
+        "description": "Find a beginner-friendly open source project on GitHub. Fork the repository, fix a bug or add a feature, and submit a pull request following contribution guidelines.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Team Collaboration Workflow",
+        "description": "Set up a Git workflow for a team project using branches, pull requests, and code reviews. Document the workflow and create templates for issues and PRs.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Automated CI/CD Pipeline",
+        "description": "Create a complete CI/CD pipeline using GitHub Actions or GitLab CI. Implement automated testing, code quality checks, and deployment to production.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "troubleshooting-projects",
+    "skill": "Troubleshooting",
+    "projects": [
+      {
+        "title": "IT Support Ticketing System",
+        "description": "Create a simple ticketing system to track and resolve IT issues. Include fields for problem description, priority, status, and resolution notes.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "System Diagnostic Tool",
+        "description": "Build a diagnostic tool that checks common system issues (disk space, memory usage, network connectivity). Generate reports with recommendations for fixes.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Automated Troubleshooting Framework",
+        "description": "Develop a framework that automatically detects and resolves common IT issues. Include logging, alerting, and self-healing capabilities for routine problems.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "cybersecurity-projects",
+    "skill": "Cybersecurity",
+    "projects": [
+      {
+        "title": "Password Strength Checker",
+        "description": "Create a tool that evaluates password strength based on length, complexity, and common patterns. Provide feedback and suggestions for stronger passwords.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Vulnerability Scanner",
+        "description": "Build a basic vulnerability scanner that checks for common security issues like open ports, outdated software, and weak configurations. Generate detailed reports.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Security Information Dashboard",
+        "description": "Create a security dashboard that aggregates data from multiple sources (logs, IDS, firewall). Visualize threats, incidents, and security metrics in real-time.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "cloud-basics-projects",
+    "skill": "Cloud Basics",
+    "projects": [
+      {
+        "title": "Static Website Hosting on AWS S3",
+        "description": "Deploy a static website to AWS S3 with CloudFront CDN. Configure custom domain, SSL certificate, and implement basic security best practices.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Serverless API with AWS Lambda",
+        "description": "Build a serverless REST API using AWS Lambda, API Gateway, and DynamoDB. Implement CRUD operations and deploy using Infrastructure as Code (CloudFormation or Terraform).",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Multi-Cloud Architecture",
+        "description": "Design and implement a multi-cloud solution using AWS, Azure, or GCP. Include load balancing, auto-scaling, monitoring, and disaster recovery capabilities.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "excel-projects",
+    "skill": "Excel",
+    "projects": [
+      {
+        "title": "Personal Finance Tracker",
+        "description": "Create an Excel workbook to track personal finances with multiple sheets for income, expenses, and budgets. Use formulas, charts, and conditional formatting.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Sales Dashboard with Pivot Tables",
+        "description": "Build an interactive sales dashboard using pivot tables, slicers, and charts. Analyze sales data by region, product, and time period with dynamic filtering.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Automated Report Generator with VBA",
+        "description": "Create an automated reporting system using Excel VBA. Pull data from multiple sources, perform calculations, generate charts, and export formatted reports.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "security-monitoring-projects",
+    "skill": "Security Monitoring",
+    "projects": [
+      {
+        "title": "Log Analysis and Alerting System",
+        "description": "Set up a log collection system using tools like ELK Stack or Splunk. Create alerts for suspicious activities and generate daily security reports.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Network Intrusion Detection System",
+        "description": "Deploy and configure an IDS like Snort or Suricata. Create custom rules to detect specific threats and integrate with a SIEM for centralized monitoring.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Security Operations Center (SOC) Simulation",
+        "description": "Build a complete SOC environment with threat detection, incident response workflows, and automated playbooks. Include threat intelligence integration and metrics tracking.",
+        "difficulty": "advanced"
+      }
+    ]
+  },
+  {
+    "id": "incident-response-projects",
+    "skill": "Incident Response",
+    "projects": [
+      {
+        "title": "Incident Response Plan Documentation",
+        "description": "Create a comprehensive incident response plan for a small organization. Include procedures for detection, containment, eradication, recovery, and lessons learned.",
+        "difficulty": "beginner"
+      },
+      {
+        "title": "Digital Forensics Investigation",
+        "description": "Conduct a simulated forensics investigation using tools like Autopsy or FTK. Analyze disk images, recover deleted files, and document findings in a formal report.",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Automated Incident Response Platform",
+        "description": "Build an automated incident response platform with playbooks for common scenarios. Include threat intelligence feeds, automated containment actions, and post-incident analysis.",
+        "difficulty": "advanced"
+      }
+    ]
+  }
+]

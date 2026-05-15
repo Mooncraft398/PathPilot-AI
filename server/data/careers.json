@@ -1,0 +1,168 @@
+[
+  {
+    "id": "cybersecurity-analyst",
+    "title": "Cybersecurity Analyst",
+    "category": "Information Security",
+    "description": "Cybersecurity Analysts protect computer networks and systems from cyber threats. They monitor security systems, investigate security breaches, implement security measures, and ensure compliance with security policies. This role requires strong analytical skills and knowledge of security tools and techniques.",
+    "required_skills": [
+      "Cybersecurity",
+      "Security Monitoring",
+      "Incident Response",
+      "Networking",
+      "Linux"
+    ],
+    "common_tasks": [
+      "Monitor security systems and networks for suspicious activity",
+      "Investigate and respond to security incidents and breaches",
+      "Implement and maintain security tools and technologies",
+      "Conduct vulnerability assessments and penetration testing",
+      "Develop and update security policies and procedures",
+      "Analyze security logs and generate reports",
+      "Stay current with emerging threats and security trends"
+    ],
+    "related_roles": [
+      "Security Operations Center (SOC) Analyst",
+      "Information Security Analyst",
+      "Threat Intelligence Analyst",
+      "Security Engineer",
+      "Penetration Tester"
+    ]
+  },
+  {
+    "id": "help-desk-technician",
+    "title": "Help Desk Technician",
+    "category": "IT Support",
+    "description": "Help Desk Technicians provide technical support to end users, troubleshooting hardware and software issues. They serve as the first point of contact for IT problems, document issues, and escalate complex problems to higher-level support. Strong communication and problem-solving skills are essential.",
+    "required_skills": [
+      "Troubleshooting",
+      "Networking",
+      "Linux",
+      "Git"
+    ],
+    "common_tasks": [
+      "Respond to user support requests via phone, email, or ticketing system",
+      "Diagnose and resolve hardware and software issues",
+      "Install, configure, and update software applications",
+      "Set up and troubleshoot network connectivity",
+      "Create and maintain user accounts and permissions",
+      "Document technical issues and solutions in knowledge base",
+      "Provide training and guidance to end users"
+    ],
+    "related_roles": [
+      "Desktop Support Technician",
+      "IT Support Specialist",
+      "Technical Support Representative",
+      "Service Desk Analyst",
+      "IT Helpdesk Coordinator"
+    ]
+  },
+  {
+    "id": "cloud-support-associate",
+    "title": "Cloud Support Associate",
+    "category": "Cloud Computing",
+    "description": "Cloud Support Associates help customers deploy, manage, and troubleshoot cloud-based solutions. They provide technical guidance on cloud services, resolve customer issues, and ensure optimal cloud infrastructure performance. Knowledge of major cloud platforms like AWS, Azure, or Google Cloud is essential.",
+    "required_skills": [
+      "Cloud Basics",
+      "Linux",
+      "Networking",
+      "Troubleshooting"
+    ],
+    "common_tasks": [
+      "Assist customers with cloud service deployment and configuration",
+      "Troubleshoot cloud infrastructure and connectivity issues",
+      "Monitor cloud resource usage and performance",
+      "Provide guidance on cloud best practices and cost optimization",
+      "Document customer interactions and technical solutions",
+      "Escalate complex issues to engineering teams",
+      "Create and maintain technical documentation and tutorials"
+    ],
+    "related_roles": [
+      "Cloud Support Engineer",
+      "AWS Support Associate",
+      "Azure Support Specialist",
+      "Cloud Operations Analyst",
+      "DevOps Support Engineer"
+    ]
+  },
+  {
+    "id": "data-analyst",
+    "title": "Data Analyst",
+    "category": "Data & Analytics",
+    "description": "Data Analysts collect, process, and analyze data to help organizations make informed business decisions. They create reports, visualizations, and dashboards to communicate insights. Strong analytical skills and proficiency in data tools like SQL, Excel, and Python are required.",
+    "required_skills": [
+      "SQL",
+      "Python",
+      "Excel"
+    ],
+    "common_tasks": [
+      "Extract and analyze data from databases and other sources",
+      "Create reports, dashboards, and data visualizations",
+      "Identify trends, patterns, and insights in data",
+      "Clean and validate data for accuracy and completeness",
+      "Collaborate with stakeholders to understand business requirements",
+      "Develop and maintain SQL queries and scripts",
+      "Present findings and recommendations to management"
+    ],
+    "related_roles": [
+      "Business Intelligence Analyst",
+      "Data Scientist",
+      "Business Analyst",
+      "Analytics Consultant",
+      "Reporting Analyst"
+    ]
+  },
+  {
+    "id": "frontend-developer",
+    "title": "Frontend Developer",
+    "category": "Software Development",
+    "description": "Frontend Developers build user-facing web applications and interfaces. They work with HTML, CSS, JavaScript, and modern frameworks like React to create responsive, accessible, and performant web experiences. Strong design sense and attention to detail are important.",
+    "required_skills": [
+      "React",
+      "Git",
+      "Python"
+    ],
+    "common_tasks": [
+      "Develop responsive web applications using React and modern JavaScript",
+      "Implement user interface designs and ensure cross-browser compatibility",
+      "Optimize application performance and loading times",
+      "Integrate frontend with backend APIs and services",
+      "Write clean, maintainable, and well-documented code",
+      "Collaborate with designers and backend developers",
+      "Debug and fix frontend issues and bugs"
+    ],
+    "related_roles": [
+      "UI Developer",
+      "Web Developer",
+      "Full Stack Developer",
+      "JavaScript Developer",
+      "React Developer"
+    ]
+  },
+  {
+    "id": "network-technician",
+    "title": "Network Technician",
+    "category": "Network Infrastructure",
+    "description": "Network Technicians install, maintain, and troubleshoot computer networks. They configure network devices, monitor network performance, and ensure reliable connectivity. Knowledge of networking protocols, hardware, and security is essential for this hands-on technical role.",
+    "required_skills": [
+      "Networking",
+      "Troubleshooting",
+      "Linux"
+    ],
+    "common_tasks": [
+      "Install and configure network equipment (routers, switches, firewalls)",
+      "Monitor network performance and troubleshoot connectivity issues",
+      "Maintain network documentation and diagrams",
+      "Implement network security measures and access controls",
+      "Perform network upgrades and maintenance",
+      "Test and verify network configurations",
+      "Provide technical support for network-related issues"
+    ],
+    "related_roles": [
+      "Network Administrator",
+      "Network Engineer",
+      "Systems Administrator",
+      "IT Infrastructure Technician",
+      "Network Support Specialist"
+    ]
+  }
+]
