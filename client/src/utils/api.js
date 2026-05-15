@@ -1,0 +1,84 @@
+import axios from 'axios';
+
+/**
+ * API utility functions for PathPilot AI
+ * Handles communication with the FastAPI backend
+ */
+
+// Base URL for the API
+const API_BASE_URL = 'http://localhost:8000';
+
+/**
+ * Create an axios instance with default config
+ */
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 30000, // 30 seconds timeout
+});
+
+/**
+ * Check if the API is healthy
+ * @returns {Promise<Object>} Health status
+ */
+export const checkHealth = async () => {
+  try {
+    const response = await api.get('/');
+    return response.data;
+  } catch (error) {
+    console.error('Health check failed:', error);
+    throw error;
+  }
+};
+
+/**
+ * Generate a career pathway
+ * @param {Object} formData - The form data from the user
+ * @param {string} formData.goal - Career goal
+ * @param {string} formData.level - Skill level (beginner, intermediate, advanced)
+ * @param {number} formData.weeks - Number of weeks
+ * @param {number} formData.daysPerWeek - Days per week
+ * @param {number} formData.hoursPerDay - Hours per day
+ * @param {Array<string>} formData.preferences - Learning preferences
+ * @param {string} formData.budget - Budget preference
+ * @returns {Promise<Object>} Generated pathway
+ */
+export const generatePathway = async (formData) => {
+  try {
+    const response = await api.post('/api/pathways/generate', formData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to generate pathway:', error);
+    
+    // Provide more detailed error message
+    if (error.response) {
+      // Server responded with error
+      throw new Error(error.response.data.detail || 'Failed to generate pathway', { cause: error });
+    } else if (error.request) {
+      // Request made but no response
+      throw new Error('Cannot connect to server. Make sure the backend is running at http://localhost:8000', { cause: error });
+    } else {
+      // Something else happened
+      throw new Error('An unexpected error occurred', { cause: error });
+    }
+  }
+};
+
+/**
+ * Test the API connection
+ * @returns {Promise<boolean>} True if connected, false otherwise
+ */
+export const testConnection = async () => {
+  try {
+    await checkHealth();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+export default api;
+
+// Made with Bob
