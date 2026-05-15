@@ -1,0 +1,9 @@
+{
+  "goal": "Junior Web Developer",
+  "level": "beginner",
+  "weeks": 6,
+  "daysPerWeek": 5,
+  "hoursPerDay": 2,
+  "preferences": ["projects", "videos"],
+  "budget": "free-first"
+}
