@@ -163,3 +163,7 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Postman local workspace files
+.postman/
+postman/
