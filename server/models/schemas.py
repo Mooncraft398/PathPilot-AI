@@ -13,6 +13,12 @@ class PathwayRequest(BaseModel):
     budget: str = Field(..., description="Budget preference: free-first, paid-ok, premium")
 
 
+class AdaptPathwayRequest(BaseModel):
+    """Request model for adapting an existing pathway"""
+    pathway: dict = Field(..., description="The current pathway object")
+    feedback: str = Field(..., description="User feedback for adaptation")
+
+
 class Resource(BaseModel):
     """A learning resource"""
     title: str

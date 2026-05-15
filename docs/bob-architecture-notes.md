@@ -457,3 +457,148 @@ After:
 ✅ App behavior unchanged
 ✅ Code is cleaner
 ✅ Loads from localStorage on mount
+
+
+## Prompt 6: Add Progress Tracking
+
+We asked IBM Bob to help add simple progress tracking after the first frontend/backend pathway generation flow was working.
+
+## Bob's Response
+Simple progress tracking has been successfully added to PathPilot AI! Here's what was implemented:
+
+Changes Made:
+1. client/src/utils/localStorage.js
+Added updatePathway() function to save updated pathway data back to localStorage
+2. client/src/components/WeekCard.jsx
+Added checkbox UI element at the start of each week card
+Checkbox shows checked state when week is completed (green background with checkmark)
+Added onToggleComplete prop to handle completion toggling
+Checkbox click is isolated from card expansion (stopPropagation)
+3. client/src/pages/PathwayPage.jsx
+Changed pathway from constant to state variable using useState
+Added handleToggleWeekComplete() function that:
+Toggles the completed status of the clicked week
+Updates the pathway state
+Saves changes to localStorage
+Enhanced progress display section to show:
+"X of Y weeks completed" text
+Progress bar (existing component)
+Percentage display (e.g., "50%")
+Passed handleToggleWeekComplete to each WeekCard component
+Features:
+✅ Checkbox on each week card to mark completion
+✅ Visual feedback (green checkbox with checkmark when completed)
+✅ Progress percentage displayed prominently
+✅ "X of Y weeks completed" counter
+✅ Real-time updates to localStorage
+✅ Existing backend/frontend response shape unchanged
+✅ No MongoDB required - uses localStorage only
+
+The implementation is minimal and hackathon-ready, keeping all existing functionality intact while adding simple, effective progress tracking!
+
+## Prompt 7: Add Adapt My Path
+
+We asked IBM Bob to help add an “Adapt My Path” feature so users can update their pathway based on new feedback or changing availability.
+
+## Bob's Response
+
+Successfully added the "Adapt My Path" feature to PathPilot AI! Here's a complete summary of all changes:
+
+Backend Changes:
+1. server/models/schemas.py
+Added AdaptPathwayRequest schema with:
+pathway: dict (the current pathway object)
+feedback: str (user feedback for adaptation)
+2. server/routes/pathways.py
+Added POST /api/pathways/adapt endpoint that:
+Accepts current pathway and user feedback
+Uses simple keyword-based logic to adapt the pathway:
+"hour"/"time" → Adjusts for reduced time commitment
+"project" → Enhances project focus
+"struggling"/"difficult"/"hard" → Adds support resources
+Generic → General customization
+Adds adaptation notes to pathway history
+Returns updated pathway compatible with existing structure
+Frontend Changes:
+3. client/src/utils/api.js
+Added adaptPathway(pathway, feedback) function that:
+Calls POST /api/pathways/adapt
+Handles errors with detailed messages
+Returns adapted pathway
+4. client/src/pages/PathwayPage.jsx
+Added state management for:
+feedback: User input text
+isAdapting: Loading state
+adaptError: Error messages
+showAdaptSection: Toggle visibility
+Added handleAdaptPathway() function that:
+Validates feedback input
+Calls API to adapt pathway
+Updates state and localStorage
+Shows success/error messages
+Added collapsible "Adapt My Path" UI section with:
+Purple/pink gradient icon and header
+Textarea with helpful placeholder examples
+"Adapt Pathway" and "Cancel" buttons
+Error display
+Adaptation history display (shows all previous adaptations)
+Features:
+✅ Simple, demo-friendly UI with collapsible section
+✅ Textarea for user feedback with helpful examples
+✅ Backend uses keyword-based logic (no AI needed for hackathon)
+✅ Adaptation history tracking
+✅ Updates pathway summary based on feedback
+✅ Saves adapted pathway to localStorage
+✅ Compatible with existing PathwayPage structure
+✅ No MongoDB required
+✅ Error handling and loading states
+✅ Clean, modern design matching the app's aesthetic
+
+## Prompt 8: Fix Adapt My Path Updates
+
+During testing, we noticed that Adapt My Path showed a success message but did not visibly update the pathway data.
+
+## Bob's Response
+Fixed the "Adapt My Path" feature to actually update pathway data! Here's what was changed:
+
+Backend Changes (server/routes/pathways.py):
+Added regex parsing for time-related feedback:
+Parses "X hour(s) per day" patterns (e.g., "1 hour per day", "2 hours per day")
+Parses "X hour(s) per week" patterns (e.g., "3 hours per week", "5 hours per week")
+Actually updates pathway fields:
+weeklyTimeCommitment - Updates to show the new time commitment (e.g., "1 hour per day" or "3 hours per week")
+dailyPlan.estimatedHours - Updates the estimated hours for each day in every week's daily plan
+summary - Appends adaptation note showing the new schedule
+Logic:
+If "X hours per day" is detected → Sets each day's estimatedHours to X
+If "X hours per week" is detected → Distributes hours across days (X / number of days)
+Falls back to generic "Flexible" message if no specific numbers found
+Frontend Changes:
+client/src/utils/api.js:
+Added console.log debugging to track API request/response
+Logs the request payload and response data
+client/src/pages/PathwayPage.jsx:
+Added comprehensive console.log debugging:
+Logs feedback being sent
+Logs current pathway before adaptation
+Logs received adapted pathway
+Logs new weeklyTimeCommitment value
+Logs localStorage save confirmation
+Updated success message to mention checking the Time Commitment field
+How It Works Now:
+User enters feedback like "Change to 1 hour per day"
+Backend parses "1 hour per day" using regex
+Backend updates:
+weeklyTimeCommitment → "1 hour per day"
+All dailyPlan[].estimatedHours → 1
+summary → Appends "[Adapted for 1h/day schedule]"
+Frontend receives updated pathway
+React state updates immediately
+localStorage saves the new pathway
+UI re-renders showing the new time commitment
+Visible Changes:
+Time Commitment card shows the new schedule
+Daily Plan hours in each week reflect the new hours
+Summary shows adaptation note
+Adaptation History tracks all changes
+The data now actually updates and persists!

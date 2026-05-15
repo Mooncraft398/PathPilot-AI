@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getPathway, clearPathway } from '../utils/localStorage';
+import { getPathway, clearPathway, updatePathway } from '../utils/localStorage';
+import { adaptPathway } from '../utils/api';
 import WeekCard from '../components/WeekCard';
 import ProgressBar from '../components/ProgressBar';
 
@@ -10,12 +11,69 @@ import ProgressBar from '../components/ProgressBar';
 function PathwayPage() {
   const navigate = useNavigate();
   // Initialize state directly from localStorage to avoid setState in useEffect
-  const [pathway] = useState(() => getPathway());
+  const [pathway, setPathway] = useState(() => getPathway());
+  const [feedback, setFeedback] = useState('');
+  const [isAdapting, setIsAdapting] = useState(false);
+  const [adaptError, setAdaptError] = useState(null);
+  const [showAdaptSection, setShowAdaptSection] = useState(false);
 
   const handleClearPathway = () => {
     if (window.confirm('Are you sure you want to clear your current pathway?')) {
       clearPathway();
       navigate('/');
+    }
+  };
+
+  const handleToggleWeekComplete = (weekNumber) => {
+    if (!pathway) return;
+
+    // Create updated pathway with toggled week completion
+    const updatedPathway = {
+      ...pathway,
+      weeks: pathway.weeks.map(week =>
+        week.weekNumber === weekNumber
+          ? { ...week, completed: !week.completed }
+          : week
+      )
+    };
+
+    // Update state and localStorage
+    setPathway(updatedPathway);
+    updatePathway(updatedPathway);
+  };
+
+  const handleAdaptPathway = async () => {
+    if (!feedback.trim()) {
+      setAdaptError('Please enter your feedback');
+      return;
+    }
+
+    setIsAdapting(true);
+    setAdaptError(null);
+
+    try {
+      console.log('🔄 Adapting pathway with feedback:', feedback);
+      console.log('📋 Current pathway before adaptation:', pathway);
+      
+      const adaptedPathway = await adaptPathway(pathway, feedback);
+      
+      console.log('✅ Received adapted pathway from API:', adaptedPathway);
+      console.log('⏰ New weeklyTimeCommitment:', adaptedPathway.weeklyTimeCommitment);
+      
+      setPathway(adaptedPathway);
+      updatePathway(adaptedPathway);
+      
+      console.log('💾 Saved to localStorage and updated state');
+      
+      setFeedback('');
+      setShowAdaptSection(false);
+      // Show success message briefly
+      alert('Pathway adapted successfully! Check the Time Commitment field.');
+    } catch (error) {
+      console.error('❌ Error adapting pathway:', error);
+      setAdaptError(error.message || 'Failed to adapt pathway');
+    } finally {
+      setIsAdapting(false);
     }
   };
 
@@ -86,7 +144,109 @@ function PathwayPage() {
 
           {/* Progress Bar */}
           <div className="bg-slate-900 rounded-lg p-6 border border-slate-800">
-            <ProgressBar completed={completedWeeks} total={totalWeeks} />
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-white">Your Progress</h3>
+                <span className="text-sm text-slate-400">
+                  {completedWeeks} of {totalWeeks} weeks completed
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <ProgressBar completed={completedWeeks} total={totalWeeks} />
+                <span className="text-2xl font-bold text-white whitespace-nowrap">
+                  {totalWeeks > 0 ? Math.round((completedWeeks / totalWeeks) * 100) : 0}%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Adapt My Path Section */}
+          <div className="bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">
+            <button
+              onClick={() => setShowAdaptSection(!showAdaptSection)}
+              className="w-full p-6 flex items-center justify-between hover:bg-slate-800/50 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-semibold text-white">Adapt My Path</h3>
+                  <p className="text-sm text-slate-400">Customize your learning journey based on your needs</p>
+                </div>
+              </div>
+              <svg
+                className={`w-6 h-6 text-slate-400 transition-transform ${
+                  showAdaptSection ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showAdaptSection && (
+              <div className="border-t border-slate-800 p-6">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Tell us how you'd like to adjust your pathway:
+                  </label>
+                  <textarea
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder="Examples:&#10;• I only have 1 hour per day now&#10;• I want more project-based learning&#10;• I'm struggling with JavaScript&#10;• I need more beginner-friendly resources"
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                    rows="4"
+                  />
+                </div>
+
+                {adaptError && (
+                  <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <p className="text-red-400 text-sm">{adaptError}</p>
+                  </div>
+                )}
+
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={handleAdaptPathway}
+                    disabled={isAdapting}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isAdapting ? 'Adapting...' : 'Adapt Pathway'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAdaptSection(false);
+                      setFeedback('');
+                      setAdaptError(null);
+                    }}
+                    className="px-6 py-3 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                {pathway.adaptationHistory && pathway.adaptationHistory.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-slate-800">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-3">Adaptation History</h4>
+                    <div className="space-y-2">
+                      {pathway.adaptationHistory.map((note, index) => (
+                        <div key={index} className="text-sm text-slate-400 flex items-start space-x-2">
+                          <svg className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span>{note}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -95,7 +255,11 @@ function PathwayPage() {
           <h2 className="text-2xl font-bold text-white mb-6">Weekly Learning Plan</h2>
           <div className="space-y-4">
             {pathway.weeks.map((week) => (
-              <WeekCard key={week.weekNumber} week={week} />
+              <WeekCard
+                key={week.weekNumber}
+                week={week}
+                onToggleComplete={handleToggleWeekComplete}
+              />
             ))}
           </div>
         </div>

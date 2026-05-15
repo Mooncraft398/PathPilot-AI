@@ -5,8 +5,13 @@ import ProjectCard from './ProjectCard';
 /**
  * Week card component - Displays a single week's learning plan
  */
-function WeekCard({ week }) {
+function WeekCard({ week, onToggleComplete }) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleCheckboxClick = (e) => {
+    e.stopPropagation(); // Prevent expanding/collapsing when clicking checkbox
+    onToggleComplete(week.weekNumber);
+  };
 
   return (
     <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
@@ -17,6 +22,23 @@ function WeekCard({ week }) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
+            {/* Checkbox */}
+            <div
+              className="flex-shrink-0"
+              onClick={handleCheckboxClick}
+            >
+              <div className={`w-6 h-6 rounded border-2 flex items-center justify-center cursor-pointer transition-all ${
+                week.completed
+                  ? 'bg-green-500 border-green-500'
+                  : 'border-slate-600 hover:border-slate-500'
+              }`}>
+                {week.completed && (
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
+            </div>
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">{week.weekNumber}</span>
             </div>

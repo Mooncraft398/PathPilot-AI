@@ -47,6 +47,20 @@ export const clearPathway = () => {
 };
 
 /**
+ * Update the saved pathway in localStorage
+ * @param {Object} pathway - The updated pathway object
+ */
+export const updatePathway = (pathway) => {
+  try {
+    localStorage.setItem(PATHWAY_KEY, JSON.stringify(pathway));
+    return true;
+  } catch (error) {
+    console.error('Error updating pathway in localStorage:', error);
+    return false;
+  }
+};
+
+/**
  * Check if a pathway exists in localStorage
  * @returns {boolean}
  */

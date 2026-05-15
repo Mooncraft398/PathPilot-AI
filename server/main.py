@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models.schemas import HealthResponse
-from routes import pathways, github_projects
+from routes import pathways
 
 # Create FastAPI app
 app = FastAPI(
@@ -26,7 +26,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(pathways.router)
-app.include_router(github_projects.router)
 
 
 @app.get("/", response_model=HealthResponse)
@@ -54,5 +53,3 @@ async def health():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-# Made with Bob

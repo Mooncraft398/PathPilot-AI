@@ -67,6 +67,39 @@ export const generatePathway = async (formData) => {
 };
 
 /**
+ * Adapt an existing pathway based on user feedback
+ * @param {Object} pathway - The current pathway object
+ * @param {string} feedback - User feedback for adaptation
+ * @returns {Promise<Object>} Adapted pathway
+ */
+export const adaptPathway = async (pathway, feedback) => {
+  try {
+    console.log('📡 Sending adapt request to API...');
+    console.log('Request payload:', { pathway, feedback });
+    
+    const response = await api.post('/api/pathways/adapt', {
+      pathway,
+      feedback,
+    });
+    
+    console.log('📡 API Response received:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ API Error:', error);
+    console.error('Error response:', error.response?.data);
+    
+    // Provide more detailed error message
+    if (error.response) {
+      throw new Error(error.response.data.detail || 'Failed to adapt pathway', { cause: error });
+    } else if (error.request) {
+      throw new Error('Cannot connect to server. Make sure the backend is running at http://localhost:8000', { cause: error });
+    } else {
+      throw new Error('An unexpected error occurred', { cause: error });
+    }
+  }
+};
+
+/**
  * Test the API connection
  * @returns {Promise<boolean>} True if connected, false otherwise
  */
