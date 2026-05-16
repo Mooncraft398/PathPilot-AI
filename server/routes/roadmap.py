@@ -7,6 +7,8 @@ from services.watsonx_service import generate_roadmap_with_ai
 from services.github_service import search_github_projects
 from services.resource_validator import resource_validator
 from services.project_validator import project_validator
+from services.response_normalizer import normalize_roadmap_response, ensure_minimum_resources
+from services.roadmap_enforcer import enforce_roadmap_requirements
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,6 +21,7 @@ class RoadmapRequest(BaseModel):
     careerGoal: str = Field(..., description="Target career role (e.g., 'SOC Analyst')")
     currentSkills: List[str] = Field(default=[], description="List of current skills")
     timeframe: str = Field(..., description="Available timeframe (e.g., '3 months', '6 months')")
+    weeks: Optional[int] = Field(default=None, description="Explicit number of weeks if provided")
 
 
 class RoadmapResponse(BaseModel):
@@ -76,23 +79,60 @@ def match_role_data(career_goal: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def get_resources_for_skills(skills: List[str]) -> Dict[str, Any]:
-    """Get learning resources for given skills"""
+def get_resources_for_skills(skills: List[str], career_goal: str = "") -> Dict[str, Any]:
+    """
+    Get learning resources for given skills with improved matching.
+    
+    Args:
+        skills: List of skills to match
+        career_goal: Career goal for additional context
+    
+    Returns:
+        Dict with resources list
+    """
     all_resources = load_json_file("resources.json")
     if not all_resources:
         return {"resources": []}
     
     matched_resources = []
+    matched_skills = set()
     
+    # First pass: exact skill matches
     for skill in skills:
         skill_lower = skill.lower()
         for resource_group in all_resources:
-            if skill_lower in resource_group.get("skill", "").lower():
+            group_skill = resource_group.get("skill", "").lower()
+            if skill_lower in group_skill or group_skill in skill_lower:
                 resources = resource_group.get("resources", [])
-                matched_resources.extend(resources[:3])  # Top 3 per skill
+                matched_resources.extend(resources[:5])  # Top 5 per skill (increased from 3)
+                matched_skills.add(group_skill)
                 break
     
-    return {"resources": matched_resources}
+    # Second pass: if we don't have enough, try verified resources
+    if len(matched_resources) < 5:
+        logger.info(f"Only {len(matched_resources)} resources from skills, trying verified resources...")
+        verified = resource_validator.match_verified_resources(
+            career_goal=career_goal,
+            topics=skills,
+            max_resources=10
+        )
+        matched_resources.extend(verified)
+    
+    # Remove duplicates by URL
+    seen_urls = set()
+    unique_resources = []
+    for resource in matched_resources:
+        url = resource.get("url", "")
+        if url and url not in seen_urls:
+            seen_urls.add(url)
+            unique_resources.append(resource)
+    
+    # Ensure minimum count
+    unique_resources = ensure_minimum_resources(unique_resources, career_goal, min_count=5)
+    
+    logger.info(f"✅ Matched {len(unique_resources)} resources for skills: {skills}")
+    
+    return {"resources": unique_resources}
 
 
 def get_projects_for_skills(skills: List[str]) -> List[Dict[str, Any]]:
@@ -206,6 +246,73 @@ async def search_github_for_role(career_goal: str, role_data: Optional[Dict[str,
         return []
 
 
+def _generate_weekly_plan(
+    weeks: int,
+    skills: List[str],
+    tools: List[str],
+    career_goal: str
+) -> List[Dict[str, Any]]:
+    """Generate weekly plan based on total weeks"""
+    weekly_plan = []
+    
+    # Generate plans for each week
+    for week in range(1, min(weeks + 1, 13)):  # Cap at 12 weeks for fallback
+        if week == 1:
+            weekly_plan.append({
+                "week": week,
+                "focus": f"Environment Setup & {skills[0] if skills else 'Fundamentals'}",
+                "topics": [f"Setting up {tools[0] if tools else 'development environment'}", "Basic concepts", "First exercises"],
+                "dailyTasks": [
+                    f"Install and configure {tools[0] if tools else 'required tools'}",
+                    f"Learn basics of {skills[0] if skills else 'core concepts'}",
+                    "Complete beginner tutorials",
+                    "Join online communities",
+                    "Set up learning schedule"
+                ]
+            })
+        elif week <= weeks // 3:
+            weekly_plan.append({
+                "week": week,
+                "focus": f"Core {skills[min(week-1, len(skills)-1)] if skills else 'Concepts'} & Practice",
+                "topics": ["Core concepts", "Hands-on exercises", "Problem solving"],
+                "dailyTasks": [
+                    "Deep dive into fundamentals",
+                    "Complete coding challenges",
+                    "Build mini-projects",
+                    "Review and debug code",
+                    "Document your learning"
+                ]
+            })
+        elif week <= (weeks * 2) // 3:
+            weekly_plan.append({
+                "week": week,
+                "focus": f"Advanced Topics & Project Development",
+                "topics": ["Advanced concepts", "Project planning", "Best practices"],
+                "dailyTasks": [
+                    "Learn advanced techniques",
+                    "Work on portfolio project",
+                    "Apply best practices",
+                    "Seek feedback from community",
+                    "Refactor and optimize code"
+                ]
+            })
+        else:
+            weekly_plan.append({
+                "week": week,
+                "focus": "Portfolio & Job Preparation",
+                "topics": ["Resume writing", "Interview prep", "Job applications"],
+                "dailyTasks": [
+                    "Complete portfolio projects",
+                    "Create professional resume",
+                    "Optimize LinkedIn profile",
+                    "Practice technical interviews",
+                    "Apply to positions"
+                ]
+            })
+    
+    return weekly_plan
+
+
 def create_fallback_roadmap(
     career_goal: str,
     current_skills: List[str],
@@ -214,10 +321,31 @@ def create_fallback_roadmap(
     local_resources: Dict[str, Any],
     github_projects: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
-    """Create a fallback roadmap if watsonx.ai fails"""
+    """Create a fallback roadmap if watsonx.ai fails - respects user's timeframe"""
+    
+    import re
     
     skills_to_learn = role_data.get("coreSkills", ["Problem Solving", "Communication"]) if role_data else []
     tools = role_data.get("tools", []) if role_data else []
+    
+    # Parse timeframe to get number of weeks
+    timeframe_lower = timeframe.lower()
+    weeks = 12  # default
+    
+    if 'month' in timeframe_lower:
+        match = re.search(r'(\d+)', timeframe_lower)
+        if match:
+            months = int(match.group(1))
+            weeks = months * 4
+    elif 'week' in timeframe_lower:
+        match = re.search(r'(\d+)', timeframe_lower)
+        if match:
+            weeks = int(match.group(1))
+    
+    # Calculate phase durations based on total weeks
+    phase_weeks = weeks // 3
+    phase1_end = phase_weeks
+    phase2_end = phase_weeks * 2
     
     return {
         "summary": f"A practical {timeframe} roadmap to become a {career_goal}. This plan focuses on building essential skills through hands-on projects and real-world practice.",
@@ -225,21 +353,21 @@ def create_fallback_roadmap(
             {
                 "phase": 1,
                 "title": "Foundation & Setup",
-                "duration": "Weeks 1-4",
+                "duration": f"Weeks 1-{phase1_end}",
                 "focus": "Learn the basics and set up your learning environment",
                 "skills": skills_to_learn[:2] if len(skills_to_learn) >= 2 else skills_to_learn
             },
             {
                 "phase": 2,
                 "title": "Core Skills Development",
-                "duration": "Weeks 5-8",
+                "duration": f"Weeks {phase1_end + 1}-{phase2_end}",
                 "focus": "Build practical skills through projects",
                 "skills": skills_to_learn[2:4] if len(skills_to_learn) >= 4 else skills_to_learn
             },
             {
                 "phase": 3,
                 "title": "Portfolio & Job Prep",
-                "duration": "Weeks 9-12",
+                "duration": f"Weeks {phase2_end + 1}-{weeks}",
                 "focus": "Create portfolio projects and prepare for job applications",
                 "skills": ["Portfolio Development", "Resume Writing", "Interview Prep"]
             }
@@ -267,104 +395,7 @@ def create_fallback_roadmap(
             f"Gained experience with industry tools including {', '.join(tools[:3])}",
             "Actively learning and applying best practices in the field"
         ],
-        "weeklyPlan": [
-            {
-                "week": 1,
-                "focus": f"Environment Setup & {skills_to_learn[0] if skills_to_learn else 'Fundamentals'}",
-                "topics": [f"Setting up {tools[0] if tools else 'development environment'}", "Basic concepts", "First exercises"],
-                "dailyTasks": [
-                    f"Install and configure {tools[0] if tools else 'required tools'}",
-                    f"Learn basics of {skills_to_learn[0] if skills_to_learn else 'core concepts'}",
-                    "Complete beginner tutorials",
-                    "Join online communities",
-                    "Set up learning schedule"
-                ]
-            },
-            {
-                "week": 2,
-                "focus": f"Core {skills_to_learn[1] if len(skills_to_learn) > 1 else 'Concepts'} & Practice",
-                "topics": [f"{skills_to_learn[1] if len(skills_to_learn) > 1 else 'Core concepts'}", "Hands-on exercises", "Problem solving"],
-                "dailyTasks": [
-                    f"Deep dive into {skills_to_learn[1] if len(skills_to_learn) > 1 else 'fundamentals'}",
-                    "Complete coding challenges",
-                    "Build mini-projects",
-                    "Review and debug code",
-                    "Document your learning"
-                ]
-            },
-            {
-                "week": 3,
-                "focus": f"Advanced {skills_to_learn[2] if len(skills_to_learn) > 2 else 'Topics'} & First Project",
-                "topics": [f"{skills_to_learn[2] if len(skills_to_learn) > 2 else 'Advanced concepts'}", "Project planning", "Best practices"],
-                "dailyTasks": [
-                    f"Learn {skills_to_learn[2] if len(skills_to_learn) > 2 else 'advanced techniques'}",
-                    "Plan your first portfolio project",
-                    "Start project implementation",
-                    "Apply best practices",
-                    "Seek feedback from community"
-                ]
-            },
-            {
-                "week": 4,
-                "focus": f"Mastering {tools[1] if len(tools) > 1 else 'Tools'} & Project Development",
-                "topics": [f"{tools[1] if len(tools) > 1 else 'Professional tools'}", "Version control", "Testing"],
-                "dailyTasks": [
-                    f"Practice with {tools[1] if len(tools) > 1 else 'industry tools'}",
-                    "Continue project development",
-                    "Implement testing",
-                    "Refactor and optimize code",
-                    "Update project documentation"
-                ]
-            },
-            {
-                "week": 5,
-                "focus": "Portfolio Project Completion & Second Project",
-                "topics": ["Project finalization", "Code review", "New project planning"],
-                "dailyTasks": [
-                    "Complete first portfolio project",
-                    "Write comprehensive README",
-                    "Plan second portfolio project",
-                    "Start second project",
-                    "Create project presentation"
-                ]
-            },
-            {
-                "week": 6,
-                "focus": f"Specialization in {career_goal} & Advanced Projects",
-                "topics": [f"{career_goal} specific skills", "Industry standards", "Advanced techniques"],
-                "dailyTasks": [
-                    f"Study {career_goal} best practices",
-                    "Work on specialized project",
-                    "Learn industry tools",
-                    "Network with professionals",
-                    "Attend virtual meetups"
-                ]
-            },
-            {
-                "week": 7,
-                "focus": "Professional Branding & Portfolio Website",
-                "topics": ["Resume writing", "LinkedIn optimization", "Portfolio website"],
-                "dailyTasks": [
-                    "Create professional resume",
-                    "Optimize LinkedIn profile",
-                    "Build portfolio website",
-                    "Showcase your projects",
-                    "Get feedback on materials"
-                ]
-            },
-            {
-                "week": 8,
-                "focus": "Job Search & Interview Preparation",
-                "topics": ["Interview prep", "Technical questions", "Job applications"],
-                "dailyTasks": [
-                    "Practice technical interviews",
-                    "Research target companies",
-                    "Apply to positions",
-                    "Prepare for behavioral questions",
-                    "Mock interviews with peers"
-                ]
-            }
-        ],
+        "weeklyPlan": _generate_weekly_plan(weeks, skills_to_learn, tools, career_goal),
         "nextSteps": [
             f"Start with the first recommended resource for {skills_to_learn[0] if skills_to_learn else 'your chosen skill'}",
             "Set up your development environment and tools",
@@ -412,8 +443,11 @@ async def generate_roadmap(request: RoadmapRequest):
             # Use current skills as a base if no role match
             skills_to_learn = request.currentSkills if request.currentSkills else ["Problem Solving"]
         
-        # Step 3: Load local resources
-        local_resources = get_resources_for_skills(skills_to_learn)
+        # Step 3: Load local resources (pass career_goal for better matching)
+        local_resources = get_resources_for_skills(
+            skills=skills_to_learn,
+            career_goal=request.careerGoal
+        )
         
         # Step 4: Search GitHub for projects (non-blocking, can fail gracefully)
         github_projects = await search_github_for_role(request.careerGoal, role_data, skills_to_learn)
@@ -512,12 +546,73 @@ async def generate_roadmap(request: RoadmapRequest):
         if certifications and "certifications" not in roadmap:
             roadmap["certifications"] = certifications
         
-        # Step 9: Return successful response
+        # Step 8.5: ENFORCE BACKEND REQUIREMENTS (timeframe, resources, GitHub validation)
+        logger.info("=" * 80)
+        logger.info("🔒 APPLYING BACKEND ENFORCEMENT")
+        logger.info("=" * 80)
+        roadmap = enforce_roadmap_requirements(
+            roadmap=roadmap,
+            career_goal=request.careerGoal,
+            requested_timeframe=request.timeframe,
+            form_weeks=request.weeks,
+            github_projects=github_projects
+        )
+        
+        # Step 9: Normalize response before returning
+        normalized_roadmap = normalize_roadmap_response(
+            roadmap=roadmap,
+            career_goal=request.careerGoal,
+            requested_timeframe=request.timeframe,
+            github_projects=roadmap.get("githubProjects", []),  # Use enforced GitHub projects
+            metadata=roadmap.get("metadata")
+        )
+        
+        # FINAL DEBUG LOGGING
+        logger.info("=" * 80)
+        logger.info("📤 FINAL RESPONSE TO FRONTEND")
+        logger.info("=" * 80)
+        logger.info(f"✅ Roadmap generation complete for {request.careerGoal}")
+        logger.info(f"   Career Goal: {request.careerGoal}")
+        logger.info(f"   Matched Career Path: {role_data.get('title') if role_data else 'None'}")
+        logger.info(f"   Resources: {len(normalized_roadmap.get('resources', []))}")
+        logger.info(f"   GitHub Projects: {len(normalized_roadmap.get('githubProjects', []))}")
+        logger.info(f"   Portfolio Projects: {len(normalized_roadmap.get('portfolioProjects', []))}")
+        logger.info(f"   Weekly Plans: {len(normalized_roadmap.get('weeklyPlan', []))}")
+        
+        # Log GitHub project details
+        github_projects_list = normalized_roadmap.get('githubProjects', [])
+        logger.info(f"\n🐙 GitHub Projects Details ({len(github_projects_list)} total):")
+        for i, proj in enumerate(github_projects_list, 1):
+            logger.info(f"   {i}. {proj.get('name', 'Unknown')}")
+            logger.info(f"      URL: {proj.get('url', 'No URL')}")
+            logger.info(f"      Stars: {proj.get('stars', 0)}")
+            logger.info(f"      Language: {proj.get('language', 'Unknown')}")
+        
+        # Log metadata
+        metadata_obj = normalized_roadmap.get("metadata", {})
+        logger.info(f"\n📊 Metadata:")
+        logger.info(f"   GitHub Raw Count: {len(github_projects)}")
+        logger.info(f"   GitHub Filtered Count: {len(github_projects)}")
+        logger.info(f"   GitHub Shown Count: {len(github_projects_list)}")
+        logger.info(f"   Matched Resource Count: {len(normalized_roadmap.get('resources', []))}")
+        logger.info(f"   Requested Timeframe: {request.timeframe}")
+        logger.info(f"   Total Weeks: {len(normalized_roadmap.get('weeklyPlan', []))}")
+        logger.info("=" * 80)
+        
+        # Add counts to metadata
+        metadata_obj.update({
+            "githubRawCount": len(github_projects),
+            "githubFilteredCount": len(github_projects),
+            "githubShownCount": len(github_projects_list),
+            "matchedResourceCount": len(normalized_roadmap.get('resources', [])),
+            "totalWeeks": len(normalized_roadmap.get('weeklyPlan', []))
+        })
+        
         return RoadmapResponse(
             success=True,
             careerGoal=request.careerGoal,
-            roadmap=roadmap,
-            metadata=roadmap.get("metadata")
+            roadmap=normalized_roadmap,
+            metadata=metadata_obj
         )
     
     except HTTPException:

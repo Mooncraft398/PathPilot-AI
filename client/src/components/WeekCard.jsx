@@ -152,11 +152,20 @@ function WeekCard({ week, onToggleComplete }) {
               </div>
               Learning Resources
             </h4>
-            <div className="grid md:grid-cols-2 gap-4">
-              {week.resources.map((resource, index) => (
-                <ResourceCard key={index} resource={resource} />
-              ))}
-            </div>
+            {week.resources && week.resources.length > 0 ? (
+              <div className="grid md:grid-cols-2 gap-4">
+                {week.resources.map((resource, index) => (
+                  <ResourceCard key={index} resource={resource} />
+                )).filter(Boolean)}
+              </div>
+            ) : (
+              <div className="bg-slate-800/30 rounded-xl p-6 text-center border border-slate-700/50">
+                <svg className="w-12 h-12 text-slate-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <p className="text-slate-400 text-sm">No resources available for this week</p>
+              </div>
+            )}
           </div>
 
           {/* Guided Project */}

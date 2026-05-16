@@ -132,10 +132,11 @@ class WatsonxService:
         max_tokens: int = 2000,
         temperature: float = 0.7,
         top_p: float = 1.0,
-        top_k: int = 50
+        top_k: int = 50,
+        max_retries: int = 2
     ) -> Optional[Dict[str, Any]]:
         """
-        Generate text using IBM watsonx.ai.
+        Generate text using IBM watsonx.ai with retry logic.
         
         Args:
             prompt: The input prompt for text generation
@@ -144,6 +145,7 @@ class WatsonxService:
             temperature: Sampling temperature (0.0-2.0)
             top_p: Nucleus sampling parameter
             top_k: Top-k sampling parameter
+            max_retries: Maximum number of retry attempts (default: 2)
         
         Returns:
             Dictionary with generated text and metadata, or None on error
@@ -161,120 +163,158 @@ class WatsonxService:
         
         logger.info("✅ IAM token obtained, calling WatsonX API...")
         
-        try:
-            # Construct API endpoint
-            endpoint = f"{self.url}/ml/v1/text/generation?version=2023-05-29"
-            
-            # Request headers
-            headers = {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {token}"
-            }
-            
-            # Request body
-            body = {
-                "input": prompt,
-                "parameters": {
-                    "decoding_method": "greedy",
-                    "max_new_tokens": max_tokens,
-                    "temperature": temperature,
-                    "top_p": top_p,
-                    "top_k": top_k,
-                    "repetition_penalty": 1.1
-                },
-                "model_id": model_id,
-                "project_id": self.project_id
-            }
-            
-            # Log full request details
-            logger.info("=" * 80)
-            logger.info("📤 WATSONX API REQUEST")
-            logger.info("=" * 80)
-            logger.info(f"Endpoint: {endpoint}")
-            logger.info(f"Model: {model_id}")
-            logger.info(f"Project ID: {self.project_id}")
-            logger.info(f"Prompt length: {len(prompt)} characters")
-            logger.info("")
-            logger.info("Request Parameters:")
-            logger.info(f"  decoding_method: {body['parameters']['decoding_method']}")
-            logger.info(f"  max_new_tokens: {body['parameters']['max_new_tokens']}")
-            logger.info(f"  temperature: {body['parameters']['temperature']}")
-            logger.info(f"  top_p: {body['parameters']['top_p']}")
-            logger.info(f"  top_k: {body['parameters']['top_k']}")
-            logger.info(f"  repetition_penalty: {body['parameters']['repetition_penalty']}")
-            logger.info("=" * 80)
-            
-            # Make request
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    endpoint,
-                    headers=headers,
-                    json=body,
-                    timeout=60.0
-                )
+        # Retry loop
+        last_error = None
+        for attempt in range(max_retries + 1):
+            if attempt > 0:
+                import asyncio
+                wait_time = 2 ** attempt  # Exponential backoff: 2s, 4s, 8s
+                logger.warning(f"⏳ Retry attempt {attempt}/{max_retries} after {wait_time}s...")
+                await asyncio.sleep(wait_time)
+        
+            try:
+                # Construct API endpoint
+                endpoint = f"{self.url}/ml/v1/text/generation?version=2023-05-29"
                 
-                logger.info(f"WatsonX Response Status: {response.status_code}")
-                
-                if response.status_code != 200:
-                    logger.error(f"❌ watsonx.ai API error: HTTP {response.status_code}")
-                    logger.error(f"Response body: {response.text[:1000]}")
-                    
-                    # Try to parse error details
-                    try:
-                        error_data = response.json()
-                        logger.error(f"Error details: {error_data}")
-                    except:
-                        pass
-                    
-                    return None
-                
-                result = response.json()
-                
-                # Log full response structure
-                logger.info("=" * 80)
-                logger.info("📥 WATSONX API RESPONSE")
-                logger.info("=" * 80)
-                
-                # Extract generated text
-                results_array = result.get("results", [])
-                if not results_array:
-                    logger.error("❌ No results array in response")
-                    logger.error(f"Response keys: {list(result.keys())}")
-                    return None
-                
-                first_result = results_array[0]
-                generated_text = first_result.get("generated_text", "")
-                token_count = first_result.get("generated_token_count", 0)
-                stop_reason = first_result.get("stop_reason", "unknown")
-                
-                # Log response metadata
-                logger.info(f"Generated token count: {token_count}")
-                logger.info(f"Stop reason: {stop_reason}")
-                logger.info(f"Generated text length: {len(generated_text)} characters")
-                logger.info(f"Generated text first 200 chars: {generated_text[:200]}")
-                logger.info(f"Generated text last 200 chars: {generated_text[-200:]}")
-                logger.info(f"Text ends with: '{generated_text[-50:]}'")
-                logger.info(f"Ends with closing brace: {generated_text.rstrip().endswith('}')}")
-                logger.info("=" * 80)
-                
-                logger.info(f"✅ WatsonX generation successful!")
-                
-                return {
-                    "generated_text": generated_text,
-                    "model_id": model_id,
-                    "token_count": token_count,
-                    "stop_reason": stop_reason
+                # Request headers
+                headers = {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {token}"
                 }
+                
+                # Request body
+                body = {
+                    "input": prompt,
+                    "parameters": {
+                        "decoding_method": "greedy",
+                        "max_new_tokens": max_tokens,
+                        "temperature": temperature,
+                        "top_p": top_p,
+                        "top_k": top_k,
+                        "repetition_penalty": 1.1,
+                        "stop_sequences": []  # Prevent premature stopping
+                    },
+                    "model_id": model_id,
+                    "project_id": self.project_id
+                }
+                
+                # Log full request details (only on first attempt)
+                if attempt == 0:
+                    logger.info("=" * 80)
+                    logger.info("📤 WATSONX API REQUEST")
+                    logger.info("=" * 80)
+                    logger.info(f"Endpoint: {endpoint}")
+                    logger.info(f"Model: {model_id}")
+                    logger.info(f"Project ID: {self.project_id}")
+                    logger.info(f"Prompt length: {len(prompt)} characters")
+                    logger.info("")
+                    logger.info("Request Parameters:")
+                    logger.info(f"  decoding_method: {body['parameters']['decoding_method']}")
+                    logger.info(f"  max_new_tokens: {body['parameters']['max_new_tokens']}")
+                    logger.info(f"  temperature: {body['parameters']['temperature']}")
+                    logger.info(f"  top_p: {body['parameters']['top_p']}")
+                    logger.info(f"  top_k: {body['parameters']['top_k']}")
+                    logger.info(f"  repetition_penalty: {body['parameters']['repetition_penalty']}")
+                    logger.info("=" * 80)
+                
+                # Make request
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        endpoint,
+                        headers=headers,
+                        json=body,
+                        timeout=60.0
+                    )
+                    
+                    logger.info(f"WatsonX Response Status: {response.status_code}")
+                    
+                    if response.status_code != 200:
+                        error_msg = f"HTTP {response.status_code}"
+                        logger.error(f"❌ watsonx.ai API error: {error_msg}")
+                        logger.error(f"Response body: {response.text[:1000]}")
+                        
+                        # Try to parse error details
+                        try:
+                            error_data = response.json()
+                            logger.error(f"Error details: {error_data}")
+                        except:
+                            pass
+                        
+                        # Retry on 5xx errors (server errors)
+                        if 500 <= response.status_code < 600 and attempt < max_retries:
+                            last_error = error_msg
+                            continue
+                        
+                        return None
+                    
+                    result = response.json()
+                    
+                    # Log full response structure
+                    logger.info("=" * 80)
+                    logger.info("📥 WATSONX API RESPONSE")
+                    logger.info("=" * 80)
+                    
+                    # Extract generated text
+                    results_array = result.get("results", [])
+                    if not results_array:
+                        logger.error("❌ No results array in response")
+                        logger.error(f"Response keys: {list(result.keys())}")
+                        return None
+                    
+                    first_result = results_array[0]
+                    generated_text = first_result.get("generated_text", "")
+                    token_count = first_result.get("generated_token_count", 0)
+                    stop_reason = first_result.get("stop_reason", "unknown")
+                    
+                    # Log response metadata
+                    logger.info(f"Generated token count: {token_count}")
+                    logger.info(f"Stop reason: {stop_reason}")
+                    logger.info(f"Generated text length: {len(generated_text)} characters")
+                    logger.info(f"Generated text first 200 chars: {generated_text[:200]}")
+                    logger.info(f"Generated text last 200 chars: {generated_text[-200:]}")
+                    logger.info(f"Text ends with: '{generated_text[-50:]}'")
+                    logger.info(f"Ends with closing brace: {generated_text.rstrip().endswith('}')}")
+                    logger.info("=" * 80)
+                    
+                    logger.info(f"✅ WatsonX generation successful!")
+                    
+                    return {
+                        "generated_text": generated_text,
+                        "model_id": model_id,
+                        "token_count": token_count,
+                        "stop_reason": stop_reason,
+                        "attempts": attempt + 1
+                    }
+            
+            except httpx.TimeoutException as e:
+                error_msg = "Request timed out (60s)"
+                logger.error(f"❌ watsonx.ai {error_msg}")
+                last_error = error_msg
+                # Retry on timeout
+                if attempt < max_retries:
+                    continue
+                return None
+            
+            except httpx.HTTPError as e:
+                error_msg = f"HTTP Error: {str(e)}"
+                logger.error(f"❌ watsonx.ai {error_msg}")
+                last_error = error_msg
+                # Retry on network errors
+                if attempt < max_retries:
+                    continue
+                return None
+            
+            except Exception as e:
+                logger.error(f"❌ Error calling watsonx.ai: {str(e)}")
+                logger.exception("Full exception details:")
+                last_error = str(e)
+                # Don't retry on unexpected errors
+                return None
         
-        except httpx.TimeoutException:
-            logger.error("❌ watsonx.ai request timed out (60s)")
-            return None
-        
-        except Exception as e:
-            logger.error(f"❌ Error calling watsonx.ai: {str(e)}")
-            logger.exception("Full exception details:")
-            return None
+        # All retries exhausted
+        logger.error(f"❌ All {max_retries + 1} attempts failed. Last error: {last_error}")
+        return None
     
     async def generate_career_roadmap(
         self,
@@ -322,8 +362,13 @@ class WatsonxService:
 Current skills: {skills_text}
 Timeframe: {timeframe}
 
+CRITICAL: The roadmap MUST be achievable within EXACTLY {timeframe}. Do NOT change or extend this timeframe.
+
 Available verified resources:
 {resources_context if resources_context else "Use well-known learning platforms"}
+
+{f'''Relevant GitHub projects to include:
+{github_context}''' if github_context else ''}
 
 Return ONLY valid JSON with NO markdown, NO code fences, NO explanations.
 
@@ -350,9 +395,9 @@ Required structure:
     {{"title": "Portfolio Project 2", "description": "Build advanced", "skills": ["skill3", "skill4"], "estimatedHours": 16, "difficulty": "intermediate"}}
   ],
   "resumeBullets": [
-    "Completed {timeframe} training in {career_goal}",
-    "Built 2 portfolio projects",
-    "Learned 5 key skills"
+    "Completed {{timeframe}} training in {{career_goal}}",
+    "Built 2 portfolio projects demonstrating key skills",
+    "Gained hands-on experience with industry tools"
   ],
   "weeklyPlan": [
     {{"week": 1, "focus": "Environment setup", "topics": ["Install tools", "Learn basics"], "dailyTasks": ["Setup workspace", "First tutorial"]}},
@@ -374,12 +419,21 @@ IMPORTANT for resources:
 - Include provider name if possible
 - Use homepage URLs if specific course URLs are uncertain
 
+IMPORTANT:
+- The timeframe is {timeframe} - do NOT change this in your response
+- Include GitHub projects in the githubProjects array if provided above
+- Use DESCRIPTIVE titles for resources (not "Resource 1")
+- Only use URLs from well-known platforms: Coursera, edX, Udemy, W3Schools, MDN, freeCodeCamp, Khan Academy, YouTube
+- Include provider name for each resource
+- Make the weekly plan fit EXACTLY within {timeframe}
+
 CRITICAL: Return ONLY the JSON object. Start with {{ and end with }}. NO markdown. NO explanations. Complete the ENTIRE JSON."""
         
-        # Generate with watsonx.ai - increased token limit for complete response
+        # Generate with watsonx.ai - increased token limit to prevent truncation
+        # 6000 tokens allows for complete roadmaps with all fields
         result = await self.generate_text(
             prompt=prompt,
-            max_tokens=4000,
+            max_tokens=6000,
             temperature=0.7
         )
         
@@ -472,12 +526,37 @@ CRITICAL: Return ONLY the JSON object. Start with {{ and end with }}. NO markdow
                 logger.error(f"Cleaned text length: {len(cleaned_text)} characters")
                 logger.error(f"Last 200 characters: {cleaned_text[-200:]}")
                 logger.error(f"Response ends with: '{cleaned_text[-50:]}'")
+                logger.error(f"Stop reason: {result.get('stop_reason', 'unknown')}")
                 logger.error("=" * 80)
                 logger.error("LIKELY CAUSE: WatsonX hit max_new_tokens limit before completing JSON")
-                logger.error(f"Current max_new_tokens: 4000")
-                logger.error("SOLUTION: Increase max_new_tokens or simplify the prompt")
+                logger.error(f"Current max_new_tokens: 6000")
+                logger.error("ATTEMPTING JSON COMPLETION...")
                 logger.error("=" * 80)
-                return None
+                
+                # Attempt to complete the JSON by adding missing closing braces
+                try:
+                    # Count opening and closing braces
+                    open_braces = cleaned_text.count('{')
+                    close_braces = cleaned_text.count('}')
+                    missing_braces = open_braces - close_braces
+                    
+                    if missing_braces > 0 and missing_braces <= 5:
+                        logger.info(f"🔧 Attempting to add {missing_braces} missing closing braces")
+                        completed_text = cleaned_text + ('}' * missing_braces)
+                        
+                        # Try to parse the completed JSON
+                        test_parse = json.loads(completed_text)
+                        logger.info("✅ JSON completion successful!")
+                        cleaned_text = completed_text
+                    else:
+                        logger.error(f"❌ Too many missing braces ({missing_braces}), cannot auto-complete")
+                        return None
+                except json.JSONDecodeError as e:
+                    logger.error(f"❌ JSON completion failed: {e}")
+                    return None
+                except Exception as e:
+                    logger.error(f"❌ Unexpected error during JSON completion: {e}")
+                    return None
             
             # Log cleaned text
             logger.info("=" * 80)

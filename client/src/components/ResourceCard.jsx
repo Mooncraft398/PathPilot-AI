@@ -64,15 +64,36 @@ function ResourceCard({ resource }) {
     }
   };
 
-  // Check if URL is valid
-  const hasValidUrl = resource.url && resource.url !== '#' && resource.url !== '';
+  // Check if URL is valid and not a placeholder
+  const hasValidUrl = resource.url &&
+                      resource.url !== '#' &&
+                      resource.url !== '' &&
+                      !resource.url.includes('example.com') &&
+                      resource.url.startsWith('http');
   
   // Get verification status
-  const isVerified = resource.urlVerified === true;
+  const isVerified = resource.urlVerified === true || resource.verified === true;
   const source = resource.source || 'unknown';
   const isReplacement = source === 'local_verified_replacement';
+  const isLocalVerified = source === 'local_verified';
   const isWatsonxVerified = source === 'watsonx_verified';
   const isWatsonxUnverified = source === 'watsonx_unverified';
+  
+  // Check if this is a fake/placeholder resource
+  const isFakeResource = !hasValidUrl ||
+                         (resource.title && (
+                           resource.title.toLowerCase().includes('resource 1') ||
+                           resource.title.toLowerCase().includes('resource 2') ||
+                           resource.title.toLowerCase().includes('resource 3') ||
+                           resource.title === 'Resource' ||
+                           resource.title === 'Example Resource'
+                         ));
+  
+  // Don't render fake/placeholder resources
+  if (isFakeResource) {
+    console.log('📚 Skipping fake/placeholder resource:', resource);
+    return null;
+  }
   
   const cardContent = (
     <>
@@ -89,8 +110,8 @@ function ResourceCard({ resource }) {
               Free
             </span>
           )}
-          {isVerified && isWatsonxVerified && (
-            <span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 text-xs font-bold rounded-full border border-blue-500/30 flex items-center" title="AI-generated URL verified">
+          {(isVerified || isLocalVerified) && (
+            <span className="px-2.5 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/30 flex items-center" title="Verified resource URL">
               <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
@@ -98,11 +119,19 @@ function ResourceCard({ resource }) {
             </span>
           )}
           {isReplacement && (
-            <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 text-xs font-bold rounded-full border border-amber-500/30 flex items-center" title="Curated verified resource">
+            <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 text-xs font-bold rounded-full border border-amber-500/30 flex items-center" title="Curated verified resource (replaced invalid URL)">
               <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               Curated
+            </span>
+          )}
+          {isWatsonxVerified && !isVerified && (
+            <span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 text-xs font-bold rounded-full border border-blue-500/30 flex items-center" title="AI-generated, URL checked">
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              AI-Checked
             </span>
           )}
           {isWatsonxUnverified && (
@@ -121,14 +150,19 @@ function ResourceCard({ resource }) {
         </div>
       </div>
       <h5 className="font-bold text-white mb-2 group-hover:text-blue-400 transition-colors leading-snug">{resource.title}</h5>
+      {resource.provider && (
+        <p className="text-xs text-slate-500 mb-2">by {resource.provider}</p>
+      )}
       <div className="flex items-center justify-between text-sm">
         <span className="text-slate-400 capitalize font-medium">{resource.type}</span>
-        <span className="text-slate-500 flex items-center">
-          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {resource.duration}
-        </span>
+        {resource.duration && (
+          <span className="text-slate-500 flex items-center">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {resource.duration}
+          </span>
+        )}
       </div>
     </>
   );

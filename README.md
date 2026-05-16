@@ -149,30 +149,94 @@ npm run dev
 
 The frontend will be available at `http://localhost:5173`
 
-## 🧪 Testing the AI Roadmap Generator
+## 🧪 Testing
 
-### Using the Frontend
+### Automated Testing Scripts
+
+We provide several testing scripts to validate the application:
+
+#### 1. Data Validation
+```bash
+cd server
+python validate_data.py
+```
+This validates all data files (resources, projects, certifications) for:
+- Required fields
+- Valid URLs
+- Consistent structure
+- No duplicates
+
+#### 2. API Endpoint Testing
+```bash
+cd server
+# Make sure backend is running first!
+python test_api_endpoints.py
+```
+This tests the `/api/generate-roadmap` endpoint with:
+- Multiple career paths
+- Different timeframes (4 weeks, 6 weeks, 3 months, 6 months)
+- Various skill combinations
+- Response validation
+
+#### 3. Career Path Testing
+```bash
+cd server
+python test_career_paths.py
+```
+This tests all 6 career paths with different timeframes to ensure:
+- Resources are matched correctly
+- GitHub projects are found
+- Watsonx.ai generates valid roadmaps
+- Timeframes are preserved
+
+### Manual Testing
+
+#### Using the Frontend
 
 1. Navigate to `http://localhost:5173`
 2. Click "Generate Pathway"
 3. Fill in the form:
    - **Career Goal**: "SOC Analyst" (or any supported role)
-   - **Current Skills**: ["Python", "basic networking", "Wireshark"]
-   - **Timeframe**: "3 months"
+   - **Timeframe**: Select weeks (4, 6, 8, 12, etc.)
+   - **Other settings**: Adjust as needed
 4. Click "Generate My Pathway"
-5. View your AI-generated roadmap!
+5. Verify the roadmap displays:
+   - Correct timeframe in the header
+   - 5+ learning resources with clickable links
+   - GitHub projects (if available)
+   - Portfolio project ideas
+   - Weekly plan
+   - Resume bullets
 
-### Using the API Directly
+#### Using the API Directly
 
 ```bash
-# Test the new AI roadmap endpoint
-curl -X POST http://localhost:8000/api/generate-roadmap \
+# Test the AI roadmap endpoint
+curl -X POST http://localhost:5000/api/generate-roadmap \
   -H "Content-Type: application/json" \
   -d '{
     "careerGoal": "SOC Analyst",
     "currentSkills": ["Python", "basic networking", "Wireshark"],
     "timeframe": "3 months"
   }'
+```
+
+#### Test Different Timeframes
+```bash
+# 4 weeks
+curl -X POST http://localhost:5000/api/generate-roadmap \
+  -H "Content-Type: application/json" \
+  -d '{"careerGoal": "IT Help Desk", "currentSkills": [], "timeframe": "4 weeks"}'
+
+# 6 weeks
+curl -X POST http://localhost:5000/api/generate-roadmap \
+  -H "Content-Type: application/json" \
+  -d '{"careerGoal": "Network Technician", "currentSkills": [], "timeframe": "6 weeks"}'
+
+# 3 months
+curl -X POST http://localhost:5000/api/generate-roadmap \
+  -H "Content-Type: application/json" \
+  -d '{"careerGoal": "Cybersecurity Analyst", "currentSkills": [], "timeframe": "3 months"}'
 ```
 
 ### Sample Request Body
@@ -298,9 +362,32 @@ PathPilot-AI/
 - Review backend logs for detailed error messages
 - The system will fall back to a template-based roadmap if watsonx.ai is unavailable
 
+### GitHub Projects Not Showing
+- **Fixed**: Response normalizer now ensures `githubProjects` array always exists
+- Check backend logs for GitHub API errors
+- Verify `GITHUB_TOKEN` is set for higher rate limits
+- The system falls back to verified local projects if GitHub fails
+
+### Wrong Timeframe Displayed
+- **Fixed**: Frontend now preserves exact user-selected timeframe
+- **Fixed**: Watsonx prompt explicitly instructs to preserve timeframe
+- If issue persists, check backend logs for prompt/response details
+
+### Insufficient Resources
+- **Fixed**: Resource matching now uses career goal context and aliases
+- **Fixed**: Minimum 5 resources guaranteed via fallback to verified resources
+- Run `python validate_data.py` to check data files
+- Add more resources to `server/data/verified_resources.json` if needed
+
 ### GitHub API Rate Limit
 - Add `GITHUB_TOKEN` to `.env` for higher rate limits (5000 requests/hour vs 60)
-- The system gracefully handles rate limit errors
+- The system gracefully handles rate limit errors and uses local projects
+
+### Watsonx Response Truncated
+- **Fixed**: Increased `max_new_tokens` to 4000
+- **Fixed**: Added retry logic with exponential backoff
+- **Fixed**: Response normalizer ensures all required fields exist
+- Check logs for "RESPONSE APPEARS TRUNCATED" warnings
 
 ## 📝 Development Notes
 

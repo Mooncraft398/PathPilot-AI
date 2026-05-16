@@ -54,15 +54,16 @@ function PathwayForm() {
       console.log('🚀 Starting pathway generation with Watsonx.ai...');
       console.log('📋 Form data:', formData);
 
-      // Calculate timeframe from weeks
-      const months = Math.ceil(formData.weeks / 4);
-      const timeframe = `${months} month${months !== 1 ? 's' : ''}`;
+      // Normalize timeframe to weeks for consistency
+      // Backend expects weeks format for accurate planning
+      const timeframe = `${formData.weeks} weeks`;
 
       // Prepare request for Watsonx.ai roadmap endpoint
       const roadmapRequest = {
         careerGoal: formData.goal,
         currentSkills: [], // User hasn't specified current skills in this form
-        timeframe: timeframe
+        timeframe: timeframe,
+        weeks: formData.weeks  // Send explicit weeks to backend
       };
 
       console.log('📡 Calling Watsonx.ai roadmap API...');
@@ -71,8 +72,19 @@ function PathwayForm() {
       // Generate roadmap using Watsonx.ai
       const roadmapResponse = await generateRoadmap(roadmapRequest);
 
-      console.log('✅ Received roadmap from Watsonx.ai');
-      console.log('Response:', roadmapResponse);
+      console.log('=' .repeat(80));
+      console.log('✅ RECEIVED ROADMAP FROM BACKEND');
+      console.log('=' .repeat(80));
+      console.log('📦 Full response:', roadmapResponse);
+      console.log('🔑 Response keys:', Object.keys(roadmapResponse));
+      console.log('🗺️  Roadmap keys:', Object.keys(roadmapResponse.roadmap || {}));
+      console.log('🐙 GitHub projects in response:', roadmapResponse.roadmap?.githubProjects?.length || 0);
+      if (roadmapResponse.roadmap?.githubProjects && roadmapResponse.roadmap.githubProjects.length > 0) {
+        console.log('🐙 GitHub projects:', roadmapResponse.roadmap.githubProjects);
+      }
+      console.log('📚 Resources in response:', roadmapResponse.roadmap?.resources?.length || 0);
+      console.log('📅 Weekly plans in response:', roadmapResponse.roadmap?.weeklyPlan?.length || 0);
+      console.log('=' .repeat(80));
 
       // Transform the Watsonx.ai response to match frontend expectations
       const pathway = transformRoadmapToPathway(roadmapResponse, {
@@ -80,12 +92,40 @@ function PathwayForm() {
         timeframe
       });
 
-      console.log('✅ Pathway transformation complete');
-      console.log('Final pathway object:', pathway);
+      console.log('=' .repeat(80));
+      console.log('✅ PATHWAY TRANSFORMATION COMPLETE');
+      console.log('=' .repeat(80));
+      console.log('📦 Final pathway object:', pathway);
+      console.log('🔑 Pathway keys:', Object.keys(pathway));
+      console.log('🐙 GitHub projects in pathway:', pathway.githubProjects?.length || 0);
+      if (pathway.githubProjects && pathway.githubProjects.length > 0) {
+        console.log('🐙 GitHub projects:', pathway.githubProjects);
+      }
+      console.log('📚 Total resources across weeks:', pathway.weeks?.reduce((sum, w) => sum + (w.resources?.length || 0), 0) || 0);
+      console.log('📅 Weeks:', pathway.weeks?.length || 0);
+      console.log('=' .repeat(80));
 
       // Save to localStorage
       savePathway(pathway);
       console.log('💾 Saved pathway to localStorage');
+      
+      // CRITICAL FIX: Use correct localStorage key 'generatedPathway'
+      const savedPathway = JSON.parse(localStorage.getItem('generatedPathway') || '{}');
+      console.log('🔍 LOCALSTORAGE VERIFICATION:');
+      console.log('   Saved pathway keys:', Object.keys(savedPathway));
+      console.log('   githubProjects in saved:', savedPathway.githubProjects?.length || 0);
+      console.log('   weeks in saved:', savedPathway.weeks?.length || 0);
+      
+      if (savedPathway.githubProjects && savedPathway.githubProjects.length > 0) {
+        console.log('   First GitHub project:', savedPathway.githubProjects[0]);
+      }
+      
+      // Verify it matches what we tried to save
+      if (savedPathway.githubProjects?.length !== pathway.githubProjects?.length) {
+        console.error('❌ MISMATCH: Tried to save', pathway.githubProjects?.length, 'but localStorage has', savedPathway.githubProjects?.length);
+      } else {
+        console.log('✅ localStorage verification passed');
+      }
 
       // Redirect to pathway page
       navigate('/pathway');

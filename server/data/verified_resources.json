@@ -78,12 +78,22 @@
         "verified": true
       },
       {
-        "title": "Security Blue Team Level 1",
+        "title": "IBM SkillsBuild Cybersecurity Fundamentals",
         "type": "course",
-        "provider": "Security Blue Team",
-        "url": "https://www.securityblue.team/why-btl1",
-        "topics": ["soc", "threat hunting", "incident response"],
-        "difficulty": "intermediate",
+        "provider": "IBM",
+        "url": "https://skillsbuild.org/students/course-catalog/cybersecurity",
+        "topics": ["cybersecurity", "security", "fundamentals"],
+        "difficulty": "beginner",
+        "estimatedTime": "10-12 hours",
+        "verified": true
+      },
+      {
+        "title": "TryHackMe SOC Level 1",
+        "type": "lab",
+        "provider": "TryHackMe",
+        "url": "https://tryhackme.com/path/outline/soclevel1",
+        "topics": ["soc", "threat detection", "incident response"],
+        "difficulty": "beginner",
         "estimatedTime": "40 hours",
         "verified": true
       },
@@ -98,7 +108,7 @@
         "verified": true
       },
       {
-        "title": "SIEM Fundamentals",
+        "title": "Splunk Fundamentals 1",
         "type": "course",
         "provider": "Splunk",
         "url": "https://www.splunk.com/en_us/training/free-courses/splunk-fundamentals-1.html",
@@ -108,13 +118,73 @@
         "verified": true
       },
       {
-        "title": "Incident Response Basics",
-        "type": "tutorial",
-        "provider": "SANS",
-        "url": "https://www.sans.org/white-papers/",
-        "topics": ["incident response", "forensics", "malware analysis"],
+        "title": "Security Onion Documentation",
+        "type": "documentation",
+        "provider": "Security Onion",
+        "url": "https://docs.securityonion.net/",
+        "topics": ["security onion", "ids", "network monitoring"],
         "difficulty": "intermediate",
         "estimatedTime": "3-4 hours",
+        "verified": true
+      },
+      {
+        "title": "NIST Incident Response Guide",
+        "type": "documentation",
+        "provider": "NIST",
+        "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf",
+        "topics": ["incident response", "forensics", "procedures"],
+        "difficulty": "intermediate",
+        "estimatedTime": "2-3 hours",
+        "verified": true
+      },
+      {
+        "title": "Blue Team Labs Online",
+        "type": "practice",
+        "provider": "Blue Team Labs",
+        "url": "https://blueteamlabs.online/",
+        "topics": ["soc", "threat hunting", "investigations"],
+        "difficulty": "intermediate",
+        "estimatedTime": "varies",
+        "verified": true
+      },
+      {
+        "title": "CyberDefenders Challenges",
+        "type": "practice",
+        "provider": "CyberDefenders",
+        "url": "https://cyberdefenders.org/blueteam-ctf-challenges/",
+        "topics": ["soc", "blue team", "ctf"],
+        "difficulty": "intermediate",
+        "estimatedTime": "varies",
+        "verified": true
+      },
+      {
+        "title": "MITRE ATT&CK Framework",
+        "type": "documentation",
+        "provider": "MITRE",
+        "url": "https://attack.mitre.org/",
+        "topics": ["threat intelligence", "tactics", "techniques"],
+        "difficulty": "intermediate",
+        "estimatedTime": "4-6 hours",
+        "verified": true
+      },
+      {
+        "title": "Elastic Security Getting Started",
+        "type": "tutorial",
+        "provider": "Elastic",
+        "url": "https://www.elastic.co/guide/en/security/current/index.html",
+        "topics": ["elastic", "siem", "security"],
+        "difficulty": "intermediate",
+        "estimatedTime": "3-4 hours",
+        "verified": true
+      },
+      {
+        "title": "Microsoft Security Operations",
+        "type": "documentation",
+        "provider": "Microsoft",
+        "url": "https://learn.microsoft.com/en-us/security/operations/",
+        "topics": ["security operations", "microsoft", "defender"],
+        "difficulty": "intermediate",
+        "estimatedTime": "5-6 hours",
         "verified": true
       }
     ]

@@ -6,6 +6,7 @@ Validates URLs and matches topics to verified resources.
 import httpx
 import json
 import logging
+import asyncio
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from urllib.parse import urlparse
@@ -30,7 +31,7 @@ class ResourceValidator:
             logger.error(f"Failed to load verified resources: {e}")
             return {}
     
-    async def validate_url(self, url: str, timeout: float = 5.0) -> Dict[str, Any]:
+    async def validate_url(self, url: str, timeout: float = 3.0) -> Dict[str, Any]:
         """
         Validate a URL by checking if it's reachable.
         
@@ -177,38 +178,76 @@ class ResourceValidator:
         self,
         resources: List[Dict[str, Any]],
         career_goal: str,
-        topics: List[str]
+        topics: List[str],
+        use_parallel: bool = True
     ) -> List[Dict[str, Any]]:
         """
         Validate resource URLs and replace invalid ones with verified alternatives.
+        Uses parallel validation for better performance.
         
         Args:
             resources: List of resources to validate
             career_goal: Career goal for finding replacements
             topics: Topics for finding replacements
+            use_parallel: Use parallel validation (default: True)
             
         Returns:
             List of validated/replaced resources with metadata
         """
-        validated_resources = []
         verified_pool = self.match_verified_resources(career_goal, topics, max_resources=20)
         verified_index = 0
         
-        logger.info(f"Validating {len(resources)} resources...")
+        logger.info(f"Validating {len(resources)} resources (parallel={use_parallel})...")
+        
+        if use_parallel and len(resources) > 1:
+            # Parallel validation for better performance
+            validation_tasks = [
+                self.validate_url(resource.get("url", ""))
+                for resource in resources
+            ]
+            
+            try:
+                # Run all validations concurrently with timeout
+                validations = await asyncio.wait_for(
+                    asyncio.gather(*validation_tasks, return_exceptions=True),
+                    timeout=10.0  # Max 10 seconds for all validations
+                )
+            except asyncio.TimeoutError:
+                logger.warning("⚠️  Parallel validation timed out, falling back to sequential")
+                use_parallel = False
+                validations = []
+        else:
+            validations = []
+        
+        validated_resources = []
         
         for i, resource in enumerate(resources):
             url = resource.get("url", "")
             
-            # Validate the URL
-            validation = await self.validate_url(url)
+            # Get validation result - ensure it's always a dict
+            validation: Dict[str, Any]
+            if use_parallel and i < len(validations):
+                result = validations[i]
+                # Handle exceptions from gather
+                if isinstance(result, Exception):
+                    logger.warning(f"Validation error for {url}: {result}")
+                    validation = {"valid": False, "error": str(result), "provider": "Unknown", "status_code": None}
+                elif isinstance(result, dict):
+                    validation = result
+                else:
+                    logger.warning(f"Unexpected validation result type: {type(result)}")
+                    validation = {"valid": False, "error": "Invalid result type", "provider": "Unknown", "status_code": None}
+            else:
+                # Sequential fallback
+                validation = await self.validate_url(url)
             
             # Create resource with validation metadata
             validated_resource = resource.copy()
-            validated_resource["urlVerified"] = validation["valid"]
+            validated_resource["urlVerified"] = validation.get("valid", False)
             validated_resource["validationStatus"] = validation.get("status_code")
             validated_resource["validationError"] = validation.get("error")
             
-            if not validation["valid"]:
+            if not validation.get("valid", False):
                 # URL is invalid, replace with verified resource
                 logger.warning(f"Invalid URL detected: {url} - {validation.get('error')}")
                 
@@ -233,7 +272,7 @@ class ResourceValidator:
             else:
                 # URL is valid
                 validated_resource["source"] = "watsonx_verified"
-                validated_resource["provider"] = validation["provider"]
+                validated_resource["provider"] = validation.get("provider", "Unknown")
                 logger.info(f"URL validated successfully: {url}")
             
             validated_resources.append(validated_resource)

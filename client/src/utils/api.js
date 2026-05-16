@@ -139,9 +139,9 @@ export const generateRoadmap = async (requestData) => {
  * @returns {Object} Transformed pathway object for frontend
  */
 export const transformRoadmapToPathway = (roadmapResponse, formData) => {
-  console.log('=' * 80);
+  console.log('='.repeat(80));
   console.log('🔄 TRANSFORMING ROADMAP TO PATHWAY FORMAT');
-  console.log('=' * 80);
+  console.log('='.repeat(80));
   console.log('📦 Raw backend response:', JSON.stringify(roadmapResponse, null, 2));
   console.log('📋 Form data:', formData);
   
@@ -149,7 +149,7 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
   const metadata = roadmapResponse.metadata || {};
   
   // Log whether WatsonX was used
-  console.log('\n' + '=' * 80);
+  console.log('\n' + '='.repeat(80));
   if (metadata.usedWatsonx === true) {
     console.log('✅ USING WATSONX.AI GENERATED ROADMAP');
     console.log(`   Model: ${metadata.model || 'unknown'}`);
@@ -160,7 +160,7 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
     console.warn('⚠️  USING FALLBACK TEMPLATE DATA (WatsonX unavailable)');
     console.warn(`   Reason: ${metadata.fallbackReason || 'unknown'}`);
   }
-  console.log('=' * 80 + '\n');
+  console.log('='.repeat(80) + '\n');
   
   // Log roadmap structure
   console.log('📊 Roadmap structure:');
@@ -176,17 +176,32 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
   const phases = roadmap.phases || [];
   const weeklyPlan = roadmap.weeklyPlan || [];
   
-  // Use the actual number of weeks from weeklyPlan if available, otherwise calculate
-  let totalWeeks = weeklyPlan.length > 0 ? weeklyPlan.length : (formData.weeks || 12);
+  // BACKEND NOW ENFORCES CORRECT TIMEFRAME
+  // Trust the backend's weeklyPlan length
+  let totalWeeks = weeklyPlan.length || formData.weeks || 12;
   
-  console.log(`\n📅 Creating ${totalWeeks} weeks from ${weeklyPlan.length} weekly plans`);
+  console.log(`\n📅 TIMEFRAME FROM BACKEND:`);
+  console.log(`   User requested: ${formData.weeks} weeks`);
+  console.log(`   Backend returned: ${weeklyPlan.length} weekly plans`);
+  console.log(`   Using: ${totalWeeks} weeks`);
   
-  // Create weeks from weekly plan (use actual AI-generated weekly data)
+  // Warn if mismatch (should not happen with enforcer)
+  if (weeklyPlan.length !== formData.weeks) {
+      console.warn(`⚠️  MISMATCH: Backend returned ${weeklyPlan.length} weeks but user requested ${formData.weeks}`);
+      console.warn(`   This should not happen - check backend enforcer`);
+  }
+  
+  // Create weeks from weekly plan (backend should provide exact count)
   for (let i = 0; i < totalWeeks; i++) {
-    const weekNum = i + 1;
-    const phaseIndex = Math.floor(i / Math.ceil(totalWeeks / Math.max(phases.length, 1)));
-    const phase = phases[phaseIndex] || phases[0] || {};
-    const weekPlan = weeklyPlan[i] || weeklyPlan[weeklyPlan.length - 1] || {};
+      const weekNum = i + 1;
+      const phaseIndex = Math.floor(i / Math.ceil(totalWeeks / Math.max(phases.length, 1)));
+      const phase = phases[phaseIndex] || phases[0] || {};
+      const weekPlan = weeklyPlan[i] || {};
+      
+      // If weekPlan is missing, warn (should not happen)
+      if (!weekPlan || Object.keys(weekPlan).length === 0) {
+          console.error(`❌ Week ${weekNum} has no plan from backend!`);
+      }
     
     console.log(`\n📆 Week ${weekNum}:`, {
       focus: weekPlan.focus,
@@ -255,12 +270,24 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
       });
     }
     
-    // Use week-specific resources if provided by AI, or distribute all resources across weeks
-    const allResources = roadmap.resources || [];
-    const resourcesPerWeek = Math.ceil(allResources.length / totalWeeks) || 2;
-    const startIdx = i * resourcesPerWeek;
-    const endIdx = Math.min(startIdx + resourcesPerWeek, allResources.length);
-    const resourcesForWeek = allResources.slice(startIdx, endIdx);
+    // BACKEND NOW ALLOCATES RESOURCES TO EACH WEEK
+    // Use week-specific resources from weekPlan if available
+    let resourcesForWeek = weekPlan.resources || [];
+    
+    // Fallback: if backend didn't allocate, distribute from roadmap.resources
+    if (resourcesForWeek.length === 0) {
+        const allResources = roadmap.resources || [];
+        const resourcesPerWeek = Math.max(Math.ceil(allResources.length / totalWeeks), 1);
+        const startIdx = i * resourcesPerWeek;
+        const endIdx = Math.min(startIdx + resourcesPerWeek, allResources.length);
+        resourcesForWeek = allResources.slice(startIdx, endIdx);
+        
+        if (resourcesForWeek.length === 0 && allResources.length > 0) {
+            const reuseIdx = i % allResources.length;
+            resourcesForWeek = [allResources[reuseIdx]];
+            console.warn(`⚠️  Week ${weekNum} had 0 resources, reusing resource ${reuseIdx + 1}`);
+        }
+    }
     
     console.log(`\n📚 Week ${weekNum} resources (${resourcesForWeek.length}):`, resourcesForWeek);
     
@@ -378,20 +405,31 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
       timeToComplete: cert.timeToComplete || cert.duration || 'Varies',
       priority: cert.priority || 'recommended'
     })),
-    // Add GitHub projects if available
-    githubProjects: (roadmap.githubProjects || []).map(project => ({
-      name: project.name || project.title || 'GitHub Project',
-      description: project.description || 'No description available',
-      url: project.url || project.link || project.html_url || '#',
-      stars: project.stars || project.stargazers_count || 0,
-      language: project.language || 'Unknown',
-      topics: project.topics || []
-    })),
+    // Add GitHub projects if available - PRESERVE ALL FIELDS
+    githubProjects: (roadmap.githubProjects || []).map(project => {
+      console.log('🐙 Mapping GitHub project:', project);
+      return {
+        name: project.name || project.title || 'GitHub Project',
+        fullName: project.fullName || project.full_name || project.name,
+        description: project.description || 'No description available',
+        url: project.url || project.link || project.html_url || '#',
+        stars: project.stars || project.stargazers_count || 0,
+        forks: project.forks || project.forks_count || 0,
+        language: project.language || 'Unknown',
+        topics: project.topics || [],
+        updated_at: project.updated_at || project.updatedAt,
+        qualityScore: project.qualityScore || project.quality_score,
+        confidence: project.confidence || 'medium',
+        reason: project.reason || '',
+        source: project.source || 'github'
+      };
+    }),
     // Add metadata for debugging
     _metadata: {
       usedWatsonx: metadata.usedWatsonx !== false,
       generatedAt: new Date().toISOString(),
       githubProjectsCount: roadmap.githubProjects?.length || 0,
+      originalTimeframe: formData.timeframe,
       originalRoadmap: roadmap
     }
   };
@@ -400,10 +438,24 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
   console.log('✅ TRANSFORMATION COMPLETE');
   console.log('='.repeat(80));
   console.log(`📦 Pathway title: ${pathway.title}`);
-  console.log(`📅 Weeks: ${pathway.weeks.length}`);
+  console.log(`📅 Weeks: ${pathway.weeks.length} (requested: ${formData.weeks})`);
   console.log(`📚 Total resources across all weeks: ${pathway.weeks.reduce((sum, w) => sum + w.resources.length, 0)}`);
   console.log(`🐙 GitHub projects: ${pathway.githubProjects.length}`);
-  console.log(`🎓 Certifications: ${pathway.recommendedCertifications.length}`);
+  
+  // Log each GitHub project to verify data
+  if (pathway.githubProjects.length > 0) {
+    console.log('\n🐙 GitHub Projects Details:');
+    pathway.githubProjects.forEach((proj, idx) => {
+      console.log(`   ${idx + 1}. ${proj.name}`);
+      console.log(`      URL: ${proj.url}`);
+      console.log(`      Stars: ${proj.stars}`);
+      console.log(`      Language: ${proj.language}`);
+      console.log(`      Confidence: ${proj.confidence}`);
+      console.log(`      Source: ${proj.source}`);
+    });
+  }
+  
+  console.log(`\n🎓 Certifications: ${pathway.recommendedCertifications.length}`);
   console.log(`🤖 Used WatsonX: ${pathway._metadata.usedWatsonx ? 'Yes' : 'No'}`);
   console.log('='.repeat(80) + '\n');
   

@@ -232,9 +232,11 @@ function PathwayPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div className="text-xs font-medium text-slate-400">Time Commitment</div>
+                <div className="text-xs font-medium text-slate-400">Timeframe</div>
               </div>
-              <div className="text-xl font-bold text-white">{pathway.weeklyTimeCommitment}</div>
+              <div className="text-xl font-bold text-white">
+                {pathway._metadata?.originalTimeframe || pathway.weeks?.length ? `${pathway.weeks.length} weeks` : pathway.weeklyTimeCommitment}
+              </div>
             </div>
           </div>
 
@@ -535,62 +537,134 @@ function PathwayPage() {
           )}
         </div>
 
-        {/* GitHub Projects */}
-        {pathway.githubProjects && pathway.githubProjects.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-6">Recommended GitHub Projects</h2>
-            <p className="text-slate-400 mb-6">
-              Explore these beginner-friendly projects to practice your skills and build your portfolio.
-            </p>
+        {/* GitHub Projects - ALWAYS SHOW SECTION */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6">Recommended GitHub Projects</h2>
+          <p className="text-slate-400 mb-6">
+            Explore these beginner-friendly projects to practice your skills and build your portfolio.
+          </p>
+          
+          {pathway.githubProjects && pathway.githubProjects.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-4">
-              {pathway.githubProjects.map((project, index) => {
-                console.log(`🐙 Rendering GitHub project ${index + 1}:`, project);
-                return (
-                <a
-                  key={index}
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-800 hover:border-purple-500/50 transition-all hover:shadow-xl hover:shadow-purple-500/10"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-                        </svg>
+              {pathway.githubProjects
+                .filter(project => {
+                  // Only filter out projects without valid URLs
+                  const hasValidUrl = project.url && project.url !== '#' && project.url !== '';
+                  return hasValidUrl;
+                })
+                .map((project, index) => {
+                  // Reduce debug logging - only log once per project
+                  if (index === 0) {
+                    console.log(`🐙 Rendering ${pathway.githubProjects.length} GitHub projects`);
+                  }
+                  
+                  // Get confidence level
+                  const confidence = project.confidence || 'medium';
+                  const confidenceColors = {
+                    high: 'bg-green-500/10 text-green-400 border-green-500/30',
+                    medium: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+                    low: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
+                  };
+                  
+                  return (
+                    <a
+                      key={index}
+                      href={project.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-800 hover:border-purple-500/50 transition-all hover:shadow-xl hover:shadow-purple-500/10"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors truncate">{project.name}</h3>
+                        </div>
+                        <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
+                          {project.stars > 0 && (
+                            <div className="flex items-center space-x-1 text-yellow-400">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <span className="text-sm font-medium">{project.stars.toLocaleString()}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">{project.name}</h3>
-                    </div>
-                    {project.stars > 0 && (
-                      <div className="flex items-center space-x-1 text-yellow-400">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        <span className="text-sm font-medium">{project.stars}</span>
+                      
+                      <p className="text-slate-300 text-sm leading-relaxed mb-4 line-clamp-2">{project.description || 'No description available'}</p>
+                      
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center space-x-2">
+                          {project.language && (
+                            <span className="px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-medium rounded-full border border-blue-500/30">
+                              {project.language}
+                            </span>
+                          )}
+                          {project.confidence && (
+                            <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${confidenceColors[confidence]}`} title={`Match confidence: ${confidence}`}>
+                              {confidence === 'high' ? '✓✓' : confidence === 'medium' ? '✓' : '~'} {confidence}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-slate-500 text-xs flex items-center">
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          View on GitHub
+                        </span>
                       </div>
-                    )}
-                  </div>
-                  <p className="text-slate-300 text-sm leading-relaxed mb-4">{project.description}</p>
-                  <div className="flex items-center justify-between">
-                    {project.language && (
-                      <span className="px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-medium rounded-full border border-blue-500/30">
-                        {project.language}
-                      </span>
-                    )}
-                    <span className="text-slate-500 text-xs flex items-center">
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                      View on GitHub
-                    </span>
-                  </div>
-                </a>
-              );
-              })}
+                      
+                      {/* Additional metadata */}
+                      {(project.forks > 0 || project.updated_at || project.reason) && (
+                        <div className="mt-4 pt-4 border-t border-slate-700/50 space-y-2">
+                          {project.forks > 0 && (
+                            <div className="flex items-center text-xs text-slate-400">
+                              <svg className="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
+                                <path fillRule="evenodd" d="M5 3.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm0 2.122a2.25 2.25 0 10-1.5 0v.878A2.25 2.25 0 005.75 8.5h1.5v2.128a2.251 2.251 0 101.5 0V8.5h1.5a2.25 2.25 0 002.25-2.25v-.878a2.25 2.25 0 10-1.5 0v.878a.75.75 0 01-.75.75h-4.5A.75.75 0 015 6.25v-.878zm3.75 7.378a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm3-8.75a.75.75 0 100-1.5.75.75 0 000 1.5z"></path>
+                              </svg>
+                              {project.forks.toLocaleString()} forks
+                            </div>
+                          )}
+                          {project.updated_at && (
+                            <div className="flex items-center text-xs text-slate-400">
+                              <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Updated {new Date(project.updated_at).toLocaleDateString()}
+                            </div>
+                          )}
+                          {project.reason && (
+                            <div className="flex items-start text-xs text-slate-400 italic">
+                              <svg className="w-3.5 h-3.5 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                              </svg>
+                              <span className="leading-tight">{project.reason}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </a>
+                  );
+                })}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-800 p-8 text-center">
+              <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">No GitHub Projects Found</h3>
+              <p className="text-slate-400">
+                No strong GitHub projects found for this path yet. Check back after generating a new roadmap.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Recommended Certifications */}
         {pathway.recommendedCertifications && pathway.recommendedCertifications.length > 0 && (
