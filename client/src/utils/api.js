@@ -139,91 +139,200 @@ export const generateRoadmap = async (requestData) => {
  * @returns {Object} Transformed pathway object for frontend
  */
 export const transformRoadmapToPathway = (roadmapResponse, formData) => {
-  console.log('🔄 Transforming Watsonx.ai roadmap to pathway format...');
-  console.log('Input roadmap:', roadmapResponse);
-  console.log('Form data:', formData);
+  console.log('=' * 80);
+  console.log('🔄 TRANSFORMING ROADMAP TO PATHWAY FORMAT');
+  console.log('=' * 80);
+  console.log('📦 Raw backend response:', JSON.stringify(roadmapResponse, null, 2));
+  console.log('📋 Form data:', formData);
   
   const roadmap = roadmapResponse.roadmap || {};
   const metadata = roadmapResponse.metadata || {};
   
   // Log whether WatsonX was used
+  console.log('\n' + '=' * 80);
   if (metadata.usedWatsonx === true) {
     console.log('✅ USING WATSONX.AI GENERATED ROADMAP');
     console.log(`   Model: ${metadata.model || 'unknown'}`);
     console.log(`   Tokens: ${metadata.tokens || 0}`);
+    console.log(`   GitHub Projects: ${metadata.usedGitHub ? 'Yes' : 'No'}`);
+    console.log(`   Local Resources: ${metadata.matchedLocalResources || 0}`);
   } else {
     console.warn('⚠️  USING FALLBACK TEMPLATE DATA (WatsonX unavailable)');
     console.warn(`   Reason: ${metadata.fallbackReason || 'unknown'}`);
   }
+  console.log('=' * 80 + '\n');
+  
+  // Log roadmap structure
+  console.log('📊 Roadmap structure:');
+  console.log(`   Phases: ${roadmap.phases?.length || 0}`);
+  console.log(`   Weekly Plans: ${roadmap.weeklyPlan?.length || 0}`);
+  console.log(`   Skills: ${roadmap.skills?.length || 0}`);
+  console.log(`   Resources: ${roadmap.resources?.length || 0}`);
+  console.log(`   GitHub Projects: ${roadmap.githubProjects?.length || 0}`);
+  console.log(`   Portfolio Projects: ${roadmap.portfolioProjects?.length || 0}`);
   
   // Transform phases into weeks
   const weeks = [];
   const phases = roadmap.phases || [];
   const weeklyPlan = roadmap.weeklyPlan || [];
   
-  // Calculate weeks from timeframe (e.g., "3 months" -> 12 weeks)
-  let totalWeeks = formData.weeks || 12;
-  if (formData.timeframe) {
-    const monthMatch = formData.timeframe.match(/(\d+)\s*month/i);
-    if (monthMatch) {
-      totalWeeks = parseInt(monthMatch[1]) * 4;
-    }
-  }
+  // Use the actual number of weeks from weeklyPlan if available, otherwise calculate
+  let totalWeeks = weeklyPlan.length > 0 ? weeklyPlan.length : (formData.weeks || 12);
   
-  // Create weeks from phases and weekly plan
+  console.log(`\n📅 Creating ${totalWeeks} weeks from ${weeklyPlan.length} weekly plans`);
+  
+  // Create weeks from weekly plan (use actual AI-generated weekly data)
   for (let i = 0; i < totalWeeks; i++) {
     const weekNum = i + 1;
-    const phaseIndex = Math.floor(i / (totalWeeks / Math.max(phases.length, 1)));
+    const phaseIndex = Math.floor(i / Math.ceil(totalWeeks / Math.max(phases.length, 1)));
     const phase = phases[phaseIndex] || phases[0] || {};
-    const weekPlan = weeklyPlan[i] || {};
+    const weekPlan = weeklyPlan[i] || weeklyPlan[weeklyPlan.length - 1] || {};
     
-    // Generate daily plan using AI-provided data when available
+    console.log(`\n📆 Week ${weekNum}:`, {
+      focus: weekPlan.focus,
+      topics: weekPlan.topics,
+      dailyTasks: weekPlan.dailyTasks,
+      phase: phase.title
+    });
+    
+    // Generate daily plan using AI-provided data
     const dailyPlan = [];
     const daysPerWeek = formData.daysPerWeek || 5;
     const hoursPerDay = formData.hoursPerDay || 2;
     
-    // Use AI-generated daily tasks if available, otherwise create varied tasks
+    // Use AI-generated daily tasks and topics
     const aiDailyTasks = weekPlan.dailyTasks || [];
-    const aiTopics = weekPlan.topics || phase.skills || [];
+    const aiTopics = weekPlan.topics || [];
+    const weekFocus = weekPlan.focus || phase.focus || phase.title || `Week ${weekNum} Learning`;
     
+    console.log(`   Daily tasks (${aiDailyTasks.length}):`, aiDailyTasks);
+    console.log(`   Topics (${aiTopics.length}):`, aiTopics);
+    
+    // Create daily plan cards - one card per day showing the week's focus
     for (let day = 1; day <= daysPerWeek; day++) {
-      // Create unique tasks for each day
       const dayTasks = [];
       
-      if (aiDailyTasks.length >= day) {
-        // Use AI-generated task for this day
-        dayTasks.push(aiDailyTasks[day - 1]);
-      } else {
-        // Generate varied tasks based on week focus and topics
-        if (day === 1) {
-          dayTasks.push(`Introduction to ${weekPlan.focus || phase.title || 'this week\'s topic'}`);
-        } else if (day === daysPerWeek) {
-          dayTasks.push(`Complete ${weekPlan.focus || 'weekly'} project and review`);
-        } else if (aiTopics[day - 2]) {
-          dayTasks.push(`Deep dive into ${aiTopics[day - 2]}`);
-        } else {
-          dayTasks.push(`Continue practicing ${weekPlan.focus || phase.focus || 'core concepts'}`);
+      // Use AI-generated tasks, distributed across days
+      if (aiDailyTasks.length > 0) {
+        // Distribute tasks across days
+        const tasksPerDay = Math.ceil(aiDailyTasks.length / daysPerWeek);
+        const startIdx = (day - 1) * tasksPerDay;
+        const endIdx = Math.min(startIdx + tasksPerDay, aiDailyTasks.length);
+        
+        for (let t = startIdx; t < endIdx; t++) {
+          if (aiDailyTasks[t]) {
+            dayTasks.push(aiDailyTasks[t]);
+          }
         }
       }
       
-      // Add 2-3 more tasks per day for variety
-      if (aiTopics.length > 0) {
-        const topicIndex = (day - 1) % aiTopics.length;
-        dayTasks.push(`Practice: ${aiTopics[topicIndex]}`);
+      // Add topics as tasks if we don't have enough tasks
+      if (dayTasks.length === 0 && aiTopics.length > 0) {
+        const topicIdx = (day - 1) % aiTopics.length;
+        if (aiTopics[topicIdx]) {
+          dayTasks.push(`Study: ${aiTopics[topicIdx]}`);
+        }
       }
-      dayTasks.push(`Work on hands-on exercises`);
+      
+      // Add practice task
+      if (aiTopics.length > 0) {
+        const practiceTopicIdx = day % aiTopics.length;
+        if (aiTopics[practiceTopicIdx]) {
+          dayTasks.push(`Practice: ${aiTopics[practiceTopicIdx]}`);
+        }
+      }
+      
+      // Ensure at least one task
+      if (dayTasks.length === 0) {
+        dayTasks.push(`Work on ${weekFocus}`);
+      }
       
       dailyPlan.push({
         day,
-        focus: weekPlan.focus || phase.focus || `Day ${day}: ${aiTopics[day - 1] || 'Continue learning'}`,
+        focus: `${weekFocus} - Day ${day}`,
         tasks: dayTasks,
         estimatedHours: hoursPerDay
       });
     }
     
-    // Use week-specific resources if provided by AI
-    const weekResources = weekPlan.resources || roadmap.resources || [];
-    const resourcesForWeek = weekResources.slice(i * 2, i * 2 + 5); // Different resources per week
+    // Use week-specific resources if provided by AI, or distribute all resources across weeks
+    const allResources = roadmap.resources || [];
+    const resourcesPerWeek = Math.ceil(allResources.length / totalWeeks) || 2;
+    const startIdx = i * resourcesPerWeek;
+    const endIdx = Math.min(startIdx + resourcesPerWeek, allResources.length);
+    const resourcesForWeek = allResources.slice(startIdx, endIdx);
+    
+    console.log(`\n📚 Week ${weekNum} resources (${resourcesForWeek.length}):`, resourcesForWeek);
+    
+    // Map resources with proper field handling and URL validation
+    const mappedResources = resourcesForWeek.map((r, idx) => {
+      // Extract provider from URL if not provided
+      let provider = r.provider || '';
+      const url = r.url || r.link || r.href || '#';
+      
+      if (!provider && url !== '#') {
+        try {
+          const urlObj = new URL(url);
+          const hostname = urlObj.hostname.replace('www.', '');
+          provider = hostname.split('.')[0];
+          // Capitalize first letter
+          provider = provider.charAt(0).toUpperCase() + provider.slice(1);
+        } catch {
+          provider = 'External';
+        }
+      }
+      
+      const resource = {
+        title: r.title || r.name || `${provider} ${r.type || 'Resource'}`,
+        type: r.type || 'course',
+        url: url,
+        provider: provider,
+        duration: r.duration || r.estimatedTime || '1-2 hours',
+        isFree: r.isFree !== undefined ? r.isFree : (r.cost === 'free' || r.cost === 'Free' || !r.cost)
+      };
+      
+      console.log(`   Resource ${idx + 1}:`, resource);
+      return resource;
+    });
+    
+    // Get project for this week - use phase-based or week-specific
+    const projectForWeek = roadmap.portfolioProjects?.[phaseIndex] || roadmap.portfolioProjects?.[i] || {};
+    
+    // Ensure skills is always an array
+    let projectSkills = projectForWeek.skills || aiTopics || phase.skills || roadmap.skills?.slice(0, 3) || [];
+    
+    // Convert to array if it's not already
+    if (!Array.isArray(projectSkills)) {
+      projectSkills = [projectSkills];
+    }
+    
+    // Filter out empty/undefined values
+    projectSkills = projectSkills.filter(skill => skill && typeof skill === 'string' && skill.trim() !== '');
+    
+    // If still empty, provide default
+    if (projectSkills.length === 0) {
+      projectSkills = ['Problem Solving', 'Critical Thinking', 'Project Management'];
+    }
+    
+    // Get project URL
+    const projectUrl = projectForWeek.url || projectForWeek.link || projectForWeek.githubUrl || projectForWeek.sourceUrl || '';
+    
+    console.log(`\n🎯 Week ${weekNum} project BEFORE mapping:`, {
+      projectForWeek,
+      title: projectForWeek.title,
+      description: projectForWeek.description,
+      skills: projectForWeek.skills,
+      url: projectUrl
+    });
+    
+    console.log(`\n🎯 Week ${weekNum} project AFTER processing:`, {
+      title: projectForWeek.title || `Week ${weekNum}: ${weekPlan.focus || 'Practical Project'}`,
+      skills: projectSkills,
+      skillsType: typeof projectSkills,
+      skillsIsArray: Array.isArray(projectSkills),
+      skillsLength: projectSkills.length,
+      url: projectUrl
+    });
     
     // Create week object
     weeks.push({
@@ -231,19 +340,16 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
       title: weekPlan.focus || phase.title || `Week ${weekNum}`,
       objectives: aiTopics.length > 0 ? aiTopics : (phase.skills || roadmap.skills?.slice(0, 3) || ['Learn core concepts', 'Practice skills', 'Build projects']),
       dailyPlan,
-      resources: resourcesForWeek.map(r => ({
-        title: r.title || r.name || 'Learning Resource',
-        type: r.type || 'article',
-        url: r.url || r.link || '#',
-        duration: r.duration || '1-2 hours',
-        isFree: r.isFree !== false
-      })),
+      resources: mappedResources,
       guidedProject: {
-        title: (roadmap.portfolioProjects?.[phaseIndex]?.title || `Week ${weekNum}: ${weekPlan.focus || 'Practical Project'}`),
-        description: (roadmap.portfolioProjects?.[phaseIndex]?.description || `Build a project demonstrating ${weekPlan.focus || 'your skills'}`),
-        skills: aiTopics.length > 0 ? aiTopics : (phase.skills || roadmap.skills?.slice(0, 3) || ['Problem Solving']),
+        title: projectForWeek.title || `Week ${weekNum}: ${weekPlan.focus || 'Practical Project'}`,
+        description: projectForWeek.description || `Build a project demonstrating ${weekPlan.focus || 'your skills'}`,
+        skills: projectSkills,
         estimatedHours: hoursPerDay * 2,
-        difficulty: formData.level || 'beginner'
+        difficulty: formData.level || 'beginner',
+        url: projectUrl,
+        link: projectUrl,
+        githubUrl: projectUrl
       },
       resumeBullet: (roadmap.resumeBullets?.[phaseIndex] || `Completed ${weekPlan.focus || `week ${weekNum}`} training in ${formData.goal}`),
       completed: false
@@ -272,16 +378,34 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
       timeToComplete: cert.timeToComplete || cert.duration || 'Varies',
       priority: cert.priority || 'recommended'
     })),
+    // Add GitHub projects if available
+    githubProjects: (roadmap.githubProjects || []).map(project => ({
+      name: project.name || project.title || 'GitHub Project',
+      description: project.description || 'No description available',
+      url: project.url || project.link || project.html_url || '#',
+      stars: project.stars || project.stargazers_count || 0,
+      language: project.language || 'Unknown',
+      topics: project.topics || []
+    })),
     // Add metadata for debugging
     _metadata: {
       usedWatsonx: metadata.usedWatsonx !== false,
       generatedAt: new Date().toISOString(),
+      githubProjectsCount: roadmap.githubProjects?.length || 0,
       originalRoadmap: roadmap
     }
   };
   
-  console.log('✅ Transformation complete');
-  console.log('📦 Transformed pathway:', pathway);
+  console.log('\n' + '='.repeat(80));
+  console.log('✅ TRANSFORMATION COMPLETE');
+  console.log('='.repeat(80));
+  console.log(`📦 Pathway title: ${pathway.title}`);
+  console.log(`📅 Weeks: ${pathway.weeks.length}`);
+  console.log(`📚 Total resources across all weeks: ${pathway.weeks.reduce((sum, w) => sum + w.resources.length, 0)}`);
+  console.log(`🐙 GitHub projects: ${pathway.githubProjects.length}`);
+  console.log(`🎓 Certifications: ${pathway.recommendedCertifications.length}`);
+  console.log(`🤖 Used WatsonX: ${pathway._metadata.usedWatsonx ? 'Yes' : 'No'}`);
+  console.log('='.repeat(80) + '\n');
   
   return pathway;
 };

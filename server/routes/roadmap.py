@@ -5,6 +5,8 @@ import json
 import os
 from services.watsonx_service import generate_roadmap_with_ai
 from services.github_service import search_github_projects
+from services.resource_validator import resource_validator
+from services.project_validator import project_validator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -127,8 +129,24 @@ def get_certifications_for_role(role_title: str) -> List[Dict[str, Any]]:
     return []
 
 
-async def search_github_for_role(career_goal: str, role_data: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Search GitHub for relevant beginner projects"""
+async def search_github_for_role(career_goal: str, role_data: Optional[Dict[str, Any]], skills: List[str] = []) -> List[Dict[str, Any]]:
+    """
+    Search GitHub for relevant beginner projects and merge with verified projects
+    
+    Args:
+        career_goal: Target career role
+        role_data: Optional role data with keywords
+        skills: List of skills for matching
+    
+    Returns:
+        List of project dictionaries with URLs and metadata
+    """
+    logger.info("=" * 80)
+    logger.info("🐙 GITHUB PROJECT SEARCH")
+    logger.info("=" * 80)
+    logger.info(f"Career Goal: {career_goal}")
+    logger.info(f"Skills: {skills}")
+    
     try:
         # Use role keywords if available
         if role_data and role_data.get("beginnerKeywords"):
@@ -136,29 +154,52 @@ async def search_github_for_role(career_goal: str, role_data: Optional[Dict[str,
         else:
             search_query = career_goal
         
+        logger.info(f"Search Query: {search_query}")
+        
         result = await search_github_projects(search_query)
         
         # Check if result is an error response
         from models.schemas import ErrorResponse, GitHubProjectsResponse
         
         if isinstance(result, ErrorResponse):
-            logger.warning(f"GitHub search failed: {result.error}")
-            return []
-        
-        # Extract repository data from successful response
-        if isinstance(result, GitHubProjectsResponse):
-            repos = []
+            logger.warning(f"❌ GitHub search failed: {result.error}")
+            logger.warning(f"   Will use verified local projects instead")
+            github_projects = []
+        elif isinstance(result, GitHubProjectsResponse):
+            github_projects = []
             for repo in result.repositories[:5]:
-                repos.append({
+                github_projects.append({
                     "name": repo.name,
                     "description": repo.description or "No description",
                     "stars": repo.stars,
                     "language": repo.language or "Unknown",
                     "url": repo.url
                 })
-            return repos
+            logger.info(f"✅ Found {len(github_projects)} GitHub projects")
+        else:
+            logger.warning(f"⚠️  Unexpected result type from GitHub API")
+            github_projects = []
         
-        return []
+        # Merge with verified projects to ensure minimum count
+        merged_projects = project_validator.merge_github_and_verified_projects(
+            github_projects=github_projects,
+            career_goal=career_goal,
+            skills=skills,
+            min_projects=3
+        )
+        
+        # Ensure all projects have URL field
+        final_projects = [project_validator.ensure_project_has_url(p) for p in merged_projects]
+        
+        logger.info(f"✅ Final project count: {len(final_projects)}")
+        for i, project in enumerate(final_projects, 1):
+            source = project.get('source', 'unknown')
+            has_url = project.get('hasUrl', False)
+            logger.info(f"   {i}. {project.get('name', 'Unknown')} (source: {source}, has_url: {has_url})")
+        
+        logger.info("=" * 80)
+        
+        return final_projects
     
     except Exception as e:
         logger.error(f"Error searching GitHub: {str(e)}")
@@ -375,7 +416,7 @@ async def generate_roadmap(request: RoadmapRequest):
         local_resources = get_resources_for_skills(skills_to_learn)
         
         # Step 4: Search GitHub for projects (non-blocking, can fail gracefully)
-        github_projects = await search_github_for_role(request.careerGoal, role_data)
+        github_projects = await search_github_for_role(request.careerGoal, role_data, skills_to_learn)
         
         # Step 5: Get certifications
         certifications = get_certifications_for_role(request.careerGoal)
@@ -407,12 +448,49 @@ async def generate_roadmap(request: RoadmapRequest):
             logger.info(f"Weekly Plans: {len(ai_roadmap.get('weeklyPlan', []))}")
             logger.info("=" * 80)
             roadmap = ai_roadmap
+            
+            # Step 7a: Validate and replace resources
+            logger.info("🔗 Validating resource URLs...")
+            resources = roadmap.get("resources", [])
+            if resources:
+                topics = roadmap.get("skills", []) + roadmap.get("tools", [])
+                validated_resources = await resource_validator.validate_and_replace_resources(
+                    resources=resources,
+                    career_goal=request.careerGoal,
+                    topics=topics
+                )
+                roadmap["resources"] = validated_resources
+                
+                # Count validation results
+                verified_count = sum(1 for r in validated_resources if r.get("urlVerified", False))
+                replaced_count = sum(1 for r in validated_resources if r.get("source") == "local_verified_replacement")
+                
+                logger.info(f"✅ Resource validation complete:")
+                logger.info(f"   Total resources: {len(validated_resources)}")
+                logger.info(f"   Verified URLs: {verified_count}")
+                logger.info(f"   Replaced URLs: {replaced_count}")
+                
+                # Add validation metadata
+                if "metadata" not in roadmap:
+                    roadmap["metadata"] = {}
+                roadmap["metadata"]["resourceValidationEnabled"] = True
+                roadmap["metadata"]["validatedResources"] = verified_count
+                roadmap["metadata"]["replacedResources"] = replaced_count
+            else:
+                logger.warning("⚠️  No resources to validate")
         else:
             logger.warning("=" * 80)
-            logger.warning("⚠️  FALLBACK: WATSONX.AI UNAVAILABLE - USING TEMPLATE DATA")
+            logger.warning("⚠️  FALLBACK: WATSONX.AI FAILED - USING TEMPLATE DATA")
             logger.warning("=" * 80)
             logger.warning("This means the roadmap will be generic and not AI-personalized")
-            logger.warning("Check WatsonX API key and credentials in .env file")
+            logger.warning("Possible reasons:")
+            logger.warning("  1. WatsonX authentication failed (check API key)")
+            logger.warning("  2. WatsonX API call failed (check network/service status)")
+            logger.warning("  3. WatsonX returned invalid/incomplete JSON (check parsing errors above)")
+            logger.warning("  4. WatsonX response was truncated (hit max_new_tokens limit)")
+            logger.warning("")
+            logger.warning("Check the detailed logs above to identify the specific issue")
+            logger.warning("If you see 'RESPONSE APPEARS TRUNCATED', increase max_new_tokens")
             logger.warning("=" * 80)
             
             roadmap = create_fallback_roadmap(
@@ -427,7 +505,7 @@ async def generate_roadmap(request: RoadmapRequest):
                 "usedWatsonx": False,
                 "usedGitHub": len(github_projects) > 0,
                 "matchedLocalResources": len(local_resources.get("resources", [])),
-                "fallbackReason": "watsonx.ai unavailable or failed"
+                "fallbackReason": "watsonx.ai failed - check logs for details"
             }
         
         # Step 8: Add certifications to roadmap

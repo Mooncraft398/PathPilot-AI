@@ -2,6 +2,18 @@
  * Project card component - Displays a guided project
  */
 function ProjectCard({ project }) {
+  // Debug logging
+  console.log('🎯 ProjectCard rendering with project:', project);
+  console.log('   Title:', project?.title);
+  console.log('   Description:', project?.description);
+  console.log('   Skills:', project?.skills);
+  console.log('   Skills type:', typeof project?.skills);
+  console.log('   Skills is array:', Array.isArray(project?.skills));
+  console.log('   Skills length:', project?.skills?.length);
+  console.log('   Difficulty:', project?.difficulty);
+  console.log('   Estimated hours:', project?.estimatedHours);
+  console.log('   URL:', project?.url || project?.link || project?.githubUrl || 'none');
+  
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case 'beginner':
@@ -14,6 +26,18 @@ function ProjectCard({ project }) {
         return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
     }
   };
+  
+  // Ensure skills is always an array
+  const skills = Array.isArray(project?.skills) ? project.skills : [];
+  const hasSkills = skills.length > 0;
+  
+  // Check for project URL
+  const projectUrl = project?.url || project?.link || project?.githubUrl || project?.sourceUrl;
+  const hasUrl = projectUrl && projectUrl !== '#' && projectUrl !== '';
+  
+  console.log('   Processed skills:', skills);
+  console.log('   Has skills:', hasSkills);
+  console.log('   Has URL:', hasUrl);
 
   return (
     <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-xl p-6 border border-slate-700 hover:border-orange-500/50 transition-all hover:shadow-xl hover:shadow-orange-500/10">
@@ -37,19 +61,25 @@ function ProjectCard({ project }) {
       {/* Skills */}
       <div className="mb-4 pb-4 border-b border-slate-700">
         <p className="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wide">Skills you'll practice</p>
-        <div className="flex flex-wrap gap-2">
-          {project.skills.map((skill, index) => (
-            <span
-              key={index}
-              className="px-3 py-1.5 bg-blue-500/10 text-blue-400 text-xs font-bold rounded-lg border border-blue-500/30 hover:bg-blue-500/20 transition-colors"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
+        {hasSkills ? (
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill, index) => (
+              <span
+                key={index}
+                className="px-3 py-1.5 bg-blue-500/10 text-blue-400 text-xs font-bold rounded-lg border border-blue-500/30 hover:bg-blue-500/20 transition-colors"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div className="text-slate-500 text-sm italic">
+            No specific skills listed for this project
+          </div>
+        )}
       </div>
 
-      {/* Time Estimate */}
+      {/* Time Estimate and Link */}
       <div className="flex items-center justify-between">
         <div className="flex items-center text-sm text-slate-400">
           <div className="w-8 h-8 bg-slate-700/50 rounded-lg flex items-center justify-center mr-2">
@@ -59,8 +89,24 @@ function ProjectCard({ project }) {
           </div>
           <span className="font-medium">{project.estimatedHours} hours</span>
         </div>
-        <div className="px-3 py-1.5 bg-orange-500/10 text-orange-400 text-xs font-bold rounded-lg border border-orange-500/20">
-          Portfolio Project
+        <div className="flex items-center space-x-2">
+          {hasUrl ? (
+            <a
+              href={projectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 bg-orange-500/10 text-orange-400 text-xs font-bold rounded-lg border border-orange-500/20 hover:bg-orange-500/20 transition-colors flex items-center space-x-1"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              <span>View Project</span>
+            </a>
+          ) : (
+            <div className="px-3 py-1.5 bg-orange-500/10 text-orange-400 text-xs font-bold rounded-lg border border-orange-500/20">
+              Portfolio Project
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -2,6 +2,8 @@
  * Resource card component - Displays a learning resource
  */
 function ResourceCard({ resource }) {
+  console.log('📚 ResourceCard rendering:', resource);
+  
   const getTypeIcon = (type) => {
     switch (type) {
       case 'video':
@@ -62,25 +64,61 @@ function ResourceCard({ resource }) {
     }
   };
 
-  return (
-    <a
-      href={resource.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 hover:bg-slate-800 transition-all border border-slate-700 hover:border-slate-600 hover:shadow-lg hover:-translate-y-0.5"
-    >
+  // Check if URL is valid
+  const hasValidUrl = resource.url && resource.url !== '#' && resource.url !== '';
+  
+  // Get verification status
+  const isVerified = resource.urlVerified === true;
+  const source = resource.source || 'unknown';
+  const isReplacement = source === 'local_verified_replacement';
+  const isWatsonxVerified = source === 'watsonx_verified';
+  const isWatsonxUnverified = source === 'watsonx_unverified';
+  
+  const cardContent = (
+    <>
       <div className="flex items-start justify-between mb-3">
         <div className={`p-2.5 rounded-xl ${getTypeColor(resource.type)} group-hover:scale-110 transition-transform`}>
           {getTypeIcon(resource.type)}
         </div>
-        {resource.isFree && (
-          <span className="px-2.5 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/30 flex items-center">
-            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            Free
-          </span>
-        )}
+        <div className="flex items-center space-x-2">
+          {resource.isFree && (
+            <span className="px-2.5 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/30 flex items-center">
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Free
+            </span>
+          )}
+          {isVerified && isWatsonxVerified && (
+            <span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 text-xs font-bold rounded-full border border-blue-500/30 flex items-center" title="AI-generated URL verified">
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Verified
+            </span>
+          )}
+          {isReplacement && (
+            <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 text-xs font-bold rounded-full border border-amber-500/30 flex items-center" title="Curated verified resource">
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Curated
+            </span>
+          )}
+          {isWatsonxUnverified && (
+            <span className="px-2.5 py-1 bg-slate-700/50 text-slate-400 text-xs font-medium rounded-full border border-slate-600" title="URL not verified">
+              <svg className="w-3 h-3 mr-1 inline" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              Unverified
+            </span>
+          )}
+          {!hasValidUrl && (
+            <span className="px-2.5 py-1 bg-slate-700/50 text-slate-400 text-xs font-medium rounded-full border border-slate-600">
+              No link
+            </span>
+          )}
+        </div>
       </div>
       <h5 className="font-bold text-white mb-2 group-hover:text-blue-400 transition-colors leading-snug">{resource.title}</h5>
       <div className="flex items-center justify-between text-sm">
@@ -92,6 +130,27 @@ function ResourceCard({ resource }) {
           {resource.duration}
         </span>
       </div>
+    </>
+  );
+  
+  // If no valid URL, render as div instead of link
+  if (!hasValidUrl) {
+    return (
+      <div className="block bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-700 opacity-75">
+        {cardContent}
+      </div>
+    );
+  }
+  
+  // Render as clickable link
+  return (
+    <a
+      href={resource.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 hover:bg-slate-800 transition-all border border-slate-700 hover:border-slate-600 hover:shadow-lg hover:-translate-y-0.5"
+    >
+      {cardContent}
     </a>
   );
 }

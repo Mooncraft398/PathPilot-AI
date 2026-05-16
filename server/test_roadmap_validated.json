@@ -1,0 +1,184 @@
+{
+  "summary": "A 3-month plan to advance as a Data Analyst by mastering core skills and building relevant projects.",
+  "phases": [
+    {
+      "phase": 1,
+      "title": "Foundation",
+      "duration": "4 weeks",
+      "focus": "Learn basics",
+      "skills": [
+        "Excel Basics",
+        "SQL Fundamentals"
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "Practice",
+      "duration": "4 weeks",
+      "focus": "Build projects",
+      "skills": [
+        "Data Cleaning with Excel",
+        "Basic Data Analysis with SQL"
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "Portfolio",
+      "duration": "4 weeks",
+      "focus": "Create portfolio",
+      "skills": [
+        "Excel Dashboard Creation",
+        "Advanced SQL Queries"
+      ]
+    }
+  ],
+  "skills": [
+    "Excel Basics",
+    "SQL Fundamentals",
+    "Data Cleaning with Excel",
+    "Basic Data Analysis with SQL",
+    "Excel Dashboard Creation",
+    "Advanced SQL Queries"
+  ],
+  "tools": [
+    "Microsoft Excel",
+    "SQL Workbench",
+    "GitHub",
+    "Markdown",
+    "Jupyter Notebooks"
+  ],
+  "resources": [
+    {
+      "title": "Excel Fundamentals",
+      "type": "course",
+      "provider": "Microsoft",
+      "url": "https://support.microsoft.com/en-us/office/excel-video-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb",
+      "topics": [
+        "excel",
+        "spreadsheets",
+        "data analysis"
+      ],
+      "difficulty": "beginner",
+      "estimatedTime": "2-3 hours",
+      "verified": true,
+      "source": "local_verified_replacement",
+      "urlVerified": true,
+      "originalTitle": "Excel Fundamentals Course",
+      "replacedUrl": "https://www.coursera.org/learn/excel-basics",
+      "replacementReason": "HTTP 404"
+    },
+    {
+      "title": "SQL Tutorial for Beginners",
+      "type": "tutorial",
+      "url": "https://www.w3schools.com/sql/",
+      "provider": "W3schools",
+      "urlVerified": true,
+      "validationStatus": 200,
+      "validationError": null,
+      "source": "watsonx_verified"
+    }
+  ],
+  "githubProjects": [
+    {
+      "name": "Data Cleaning Project",
+      "description": "Clean and organize data using Excel",
+      "difficulty": "beginner"
+    },
+    {
+      "name": "Sales Analysis",
+      "description": "Analyze sales data using SQL",
+      "difficulty": "intermediate"
+    }
+  ],
+  "portfolioProjects": [
+    {
+      "title": "Customer Segmentation Dashboard",
+      "description": "Create a dashboard visualizing customer segments using Excel",
+      "skills": [
+        "Excel Dashboard Creation"
+      ],
+      "estimatedHours": 16,
+      "difficulty": "intermediate"
+    },
+    {
+      "title": "Inventory Management System",
+      "description": "Develop an inventory management system using SQL",
+      "skills": [
+        "Advanced SQL Queries"
+      ],
+      "estimatedHours": 32,
+      "difficulty": "advanced"
+    }
+  ],
+  "resumeBullets": [
+    "Completed 3-month training in Data Analyst skills",
+    "Built 2 portfolio projects",
+    "Mastered 6 key skills"
+  ],
+  "weeklyPlan": [
+    {
+      "week": 1,
+      "focus": "Environment setup",
+      "topics": [
+        "Install tools",
+        "Learn basics"
+      ],
+      "dailyTasks": [
+        "Setup workspace",
+        "First tutorial"
+      ]
+    },
+    {
+      "week": 2,
+      "focus": "Core concepts",
+      "topics": [
+        "Study fundamentals",
+        "Practice"
+      ],
+      "dailyTasks": [
+        "Read docs",
+        "Do exercises"
+      ]
+    },
+    {
+      "week": 3,
+      "focus": "First project",
+      "topics": [
+        "Plan project",
+        "Start coding"
+      ],
+      "dailyTasks": [
+        "Design",
+        "Implement"
+      ]
+    },
+    {
+      "week": 4,
+      "focus": "Complete project",
+      "topics": [
+        "Finish coding",
+        "Test"
+      ],
+      "dailyTasks": [
+        "Debug",
+        "Deploy"
+      ]
+    }
+  ],
+  "nextSteps": [
+    "Start with 'Excel Fundamentals Course'",
+    "Set up development environment with Microsoft Excel and SQL Workbench",
+    "Join online community for support",
+    "Begin first project: 'Data Cleaning Project'"
+  ],
+  "metadata": {
+    "usedWatsonx": true,
+    "usedGitHub": true,
+    "matchedLocalResources": 2,
+    "model": "ibm/granite-3-8b-instruct",
+    "tokens": 738,
+    "resourceValidationEnabled": true,
+    "validatedResources": 1,
+    "replacedResources": 1
+  }
+}

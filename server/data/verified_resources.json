@@ -1,0 +1,322 @@
+{
+  "data_analyst": {
+    "title": "Data Analyst",
+    "resources": [
+      {
+        "title": "Excel Fundamentals",
+        "type": "course",
+        "provider": "Microsoft",
+        "url": "https://support.microsoft.com/en-us/office/excel-video-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb",
+        "topics": ["excel", "spreadsheets", "data analysis"],
+        "difficulty": "beginner",
+        "estimatedTime": "2-3 hours",
+        "verified": true
+      },
+      {
+        "title": "SQL Tutorial",
+        "type": "tutorial",
+        "provider": "W3Schools",
+        "url": "https://www.w3schools.com/sql/",
+        "topics": ["sql", "database", "queries"],
+        "difficulty": "beginner",
+        "estimatedTime": "4-6 hours",
+        "verified": true
+      },
+      {
+        "title": "Introduction to Data Analysis",
+        "type": "course",
+        "provider": "Coursera",
+        "url": "https://www.coursera.org/learn/introduction-to-data-analytics",
+        "topics": ["data analysis", "statistics", "visualization"],
+        "difficulty": "beginner",
+        "estimatedTime": "10-15 hours",
+        "verified": true
+      },
+      {
+        "title": "Power BI Guided Learning",
+        "type": "course",
+        "provider": "Microsoft",
+        "url": "https://learn.microsoft.com/en-us/power-bi/guided-learning/",
+        "topics": ["power bi", "visualization", "dashboards"],
+        "difficulty": "intermediate",
+        "estimatedTime": "8-10 hours",
+        "verified": true
+      },
+      {
+        "title": "Python for Data Analysis",
+        "type": "course",
+        "provider": "DataCamp",
+        "url": "https://www.datacamp.com/courses/intro-to-python-for-data-science",
+        "topics": ["python", "pandas", "data analysis"],
+        "difficulty": "intermediate",
+        "estimatedTime": "4 hours",
+        "verified": true
+      },
+      {
+        "title": "Tableau Public Training",
+        "type": "tutorial",
+        "provider": "Tableau",
+        "url": "https://public.tableau.com/en-us/s/resources",
+        "topics": ["tableau", "visualization", "dashboards"],
+        "difficulty": "intermediate",
+        "estimatedTime": "6-8 hours",
+        "verified": true
+      }
+    ]
+  },
+  "soc_analyst": {
+    "title": "SOC Analyst",
+    "resources": [
+      {
+        "title": "Introduction to Cybersecurity",
+        "type": "course",
+        "provider": "Cisco",
+        "url": "https://www.netacad.com/courses/cybersecurity/introduction-cybersecurity",
+        "topics": ["cybersecurity", "security fundamentals", "threats"],
+        "difficulty": "beginner",
+        "estimatedTime": "15 hours",
+        "verified": true
+      },
+      {
+        "title": "Security Blue Team Level 1",
+        "type": "course",
+        "provider": "Security Blue Team",
+        "url": "https://www.securityblue.team/why-btl1",
+        "topics": ["soc", "threat hunting", "incident response"],
+        "difficulty": "intermediate",
+        "estimatedTime": "40 hours",
+        "verified": true
+      },
+      {
+        "title": "Wireshark Tutorial",
+        "type": "tutorial",
+        "provider": "Wireshark",
+        "url": "https://www.wireshark.org/docs/wsug_html_chunked/",
+        "topics": ["wireshark", "packet analysis", "network security"],
+        "difficulty": "intermediate",
+        "estimatedTime": "4-6 hours",
+        "verified": true
+      },
+      {
+        "title": "SIEM Fundamentals",
+        "type": "course",
+        "provider": "Splunk",
+        "url": "https://www.splunk.com/en_us/training/free-courses/splunk-fundamentals-1.html",
+        "topics": ["siem", "splunk", "log analysis"],
+        "difficulty": "intermediate",
+        "estimatedTime": "6 hours",
+        "verified": true
+      },
+      {
+        "title": "Incident Response Basics",
+        "type": "tutorial",
+        "provider": "SANS",
+        "url": "https://www.sans.org/white-papers/",
+        "topics": ["incident response", "forensics", "malware analysis"],
+        "difficulty": "intermediate",
+        "estimatedTime": "3-4 hours",
+        "verified": true
+      }
+    ]
+  },
+  "software_developer": {
+    "title": "Software Developer",
+    "resources": [
+      {
+        "title": "JavaScript Basics",
+        "type": "tutorial",
+        "provider": "MDN",
+        "url": "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps",
+        "topics": ["javascript", "programming", "web development"],
+        "difficulty": "beginner",
+        "estimatedTime": "8-10 hours",
+        "verified": true
+      },
+      {
+        "title": "Python for Beginners",
+        "type": "course",
+        "provider": "Python.org",
+        "url": "https://www.python.org/about/gettingstarted/",
+        "topics": ["python", "programming", "scripting"],
+        "difficulty": "beginner",
+        "estimatedTime": "10-15 hours",
+        "verified": true
+      },
+      {
+        "title": "Git and GitHub Tutorial",
+        "type": "tutorial",
+        "provider": "GitHub",
+        "url": "https://docs.github.com/en/get-started/quickstart",
+        "topics": ["git", "version control", "github"],
+        "difficulty": "beginner",
+        "estimatedTime": "2-3 hours",
+        "verified": true
+      },
+      {
+        "title": "React Tutorial",
+        "type": "tutorial",
+        "provider": "React",
+        "url": "https://react.dev/learn",
+        "topics": ["react", "javascript", "frontend"],
+        "difficulty": "intermediate",
+        "estimatedTime": "8-12 hours",
+        "verified": true
+      },
+      {
+        "title": "Node.js Getting Started",
+        "type": "tutorial",
+        "provider": "Node.js",
+        "url": "https://nodejs.org/en/docs/guides/getting-started-guide",
+        "topics": ["nodejs", "backend", "javascript"],
+        "difficulty": "intermediate",
+        "estimatedTime": "4-6 hours",
+        "verified": true
+      }
+    ]
+  },
+  "cloud_engineer": {
+    "title": "Cloud Engineer",
+    "resources": [
+      {
+        "title": "AWS Cloud Practitioner Essentials",
+        "type": "course",
+        "provider": "AWS",
+        "url": "https://aws.amazon.com/training/digital/aws-cloud-practitioner-essentials/",
+        "topics": ["aws", "cloud", "infrastructure"],
+        "difficulty": "beginner",
+        "estimatedTime": "6 hours",
+        "verified": true
+      },
+      {
+        "title": "Azure Fundamentals",
+        "type": "course",
+        "provider": "Microsoft",
+        "url": "https://learn.microsoft.com/en-us/training/paths/azure-fundamentals/",
+        "topics": ["azure", "cloud", "microsoft"],
+        "difficulty": "beginner",
+        "estimatedTime": "10 hours",
+        "verified": true
+      },
+      {
+        "title": "Google Cloud Skills Boost",
+        "type": "course",
+        "provider": "Google Cloud",
+        "url": "https://www.cloudskillsboost.google/",
+        "topics": ["gcp", "cloud", "google"],
+        "difficulty": "beginner",
+        "estimatedTime": "varies",
+        "verified": true
+      },
+      {
+        "title": "Docker Getting Started",
+        "type": "tutorial",
+        "provider": "Docker",
+        "url": "https://docs.docker.com/get-started/",
+        "topics": ["docker", "containers", "devops"],
+        "difficulty": "intermediate",
+        "estimatedTime": "4-6 hours",
+        "verified": true
+      },
+      {
+        "title": "Kubernetes Basics",
+        "type": "tutorial",
+        "provider": "Kubernetes",
+        "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/",
+        "topics": ["kubernetes", "containers", "orchestration"],
+        "difficulty": "intermediate",
+        "estimatedTime": "6-8 hours",
+        "verified": true
+      }
+    ]
+  },
+  "it_help_desk": {
+    "title": "IT Help Desk",
+    "resources": [
+      {
+        "title": "CompTIA A+ Core 1",
+        "type": "course",
+        "provider": "CompTIA",
+        "url": "https://www.comptia.org/certifications/a",
+        "topics": ["hardware", "troubleshooting", "it fundamentals"],
+        "difficulty": "beginner",
+        "estimatedTime": "40 hours",
+        "verified": true
+      },
+      {
+        "title": "Windows 10 Fundamentals",
+        "type": "course",
+        "provider": "Microsoft",
+        "url": "https://learn.microsoft.com/en-us/training/paths/windows-10/",
+        "topics": ["windows", "operating systems", "administration"],
+        "difficulty": "beginner",
+        "estimatedTime": "8 hours",
+        "verified": true
+      },
+      {
+        "title": "Customer Service Skills",
+        "type": "course",
+        "provider": "LinkedIn Learning",
+        "url": "https://www.linkedin.com/learning/topics/customer-service",
+        "topics": ["customer service", "communication", "soft skills"],
+        "difficulty": "beginner",
+        "estimatedTime": "2-4 hours",
+        "verified": true
+      },
+      {
+        "title": "Active Directory Basics",
+        "type": "tutorial",
+        "provider": "Microsoft",
+        "url": "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/active-directory-domain-services-overview",
+        "topics": ["active directory", "windows server", "user management"],
+        "difficulty": "intermediate",
+        "estimatedTime": "4-6 hours",
+        "verified": true
+      }
+    ]
+  },
+  "general": {
+    "title": "General Tech Skills",
+    "resources": [
+      {
+        "title": "freeCodeCamp",
+        "type": "interactive",
+        "provider": "freeCodeCamp",
+        "url": "https://www.freecodecamp.org/",
+        "topics": ["programming", "web development", "certifications"],
+        "difficulty": "beginner",
+        "estimatedTime": "varies",
+        "verified": true
+      },
+      {
+        "title": "Khan Academy Computer Science",
+        "type": "course",
+        "provider": "Khan Academy",
+        "url": "https://www.khanacademy.org/computing/computer-science",
+        "topics": ["computer science", "algorithms", "programming"],
+        "difficulty": "beginner",
+        "estimatedTime": "varies",
+        "verified": true
+      },
+      {
+        "title": "LinkedIn Learning",
+        "type": "course",
+        "provider": "LinkedIn",
+        "url": "https://www.linkedin.com/learning/",
+        "topics": ["professional development", "tech skills", "business"],
+        "difficulty": "varies",
+        "estimatedTime": "varies",
+        "verified": true
+      },
+      {
+        "title": "YouTube Tech Channels",
+        "type": "video",
+        "provider": "YouTube",
+        "url": "https://www.youtube.com/",
+        "topics": ["tutorials", "tech", "learning"],
+        "difficulty": "varies",
+        "estimatedTime": "varies",
+        "verified": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "data_analyst": [
+    {
+      "title": "Sales Data Analysis Dashboard",
+      "description": "Build an interactive dashboard analyzing sales data using Excel, Python, or Power BI. Learn data cleaning, visualization, and insight generation.",
+      "difficulty": "beginner",
+      "skills": ["Excel", "Data Visualization", "Data Cleaning", "SQL"],
+      "estimatedHours": 8,
+      "url": "https://github.com/NAVEENDATAANALYST/POWER-BI-PROJECTS-Beginner",
+      "provider": "GitHub",
+      "language": "Power BI",
+      "stars": 13,
+      "verified": true
+    },
+    {
+      "title": "Customer Segmentation Analysis",
+      "description": "Segment customers based on purchasing behavior using Python and pandas. Practice clustering, data analysis, and business insights.",
+      "difficulty": "intermediate",
+      "skills": ["Python", "Pandas", "Data Analysis", "Machine Learning"],
+      "estimatedHours": 12,
+      "url": "https://github.com/ShehrazSarwar/Python-Data-Analysis",
+      "provider": "GitHub",
+      "language": "Python",
+      "stars": 3,
+      "verified": true
+    },
+    {
+      "title": "Financial Data Visualization",
+      "description": "Create visualizations for financial data using Tableau or Power BI. Learn to present complex data clearly.",
+      "difficulty": "beginner",
+      "skills": ["Tableau", "Power BI", "Data Visualization"],
+      "estimatedHours": 6,
+      "url": "https://public.tableau.com/app/learn/sample-data",
+      "provider": "Tableau",
+      "language": "Tableau",
+      "verified": true
+    }
+  ],
+  "soc_analyst": [
+    {
+      "title": "Network Traffic Analysis Lab",
+      "description": "Set up a home lab to analyze network traffic using Wireshark. Learn packet analysis, protocol understanding, and threat detection.",
+      "difficulty": "beginner",
+      "skills": ["Wireshark", "Network Analysis", "TCP/IP", "Security"],
+      "estimatedHours": 10,
+      "url": "https://github.com/sbilly/awesome-security",
+      "provider": "GitHub",
+      "language": "Various",
+      "stars": 12000,
+      "verified": true
+    },
+    {
+      "title": "SIEM Log Analysis Project",
+      "description": "Practice analyzing security logs using Splunk or ELK stack. Learn to identify security incidents and create alerts.",
+      "difficulty": "intermediate",
+      "skills": ["SIEM", "Log Analysis", "Splunk", "Security Monitoring"],
+      "estimatedHours": 15,
+      "url": "https://github.com/splunk/security-content",
+      "provider": "GitHub",
+      "language": "Python",
+      "stars": 1200,
+      "verified": true
+    },
+    {
+      "title": "Malware Analysis Sandbox",
+      "description": "Build a safe environment to analyze malware samples. Learn reverse engineering basics and threat intelligence.",
+      "difficulty": "advanced",
+      "skills": ["Malware Analysis", "Reverse Engineering", "Python", "Security"],
+      "estimatedHours": 20,
+      "url": "https://github.com/rshipp/awesome-malware-analysis",
+      "provider": "GitHub",
+      "language": "Various",
+      "stars": 11000,
+      "verified": true
+    }
+  ],
+  "software_developer": [
+    {
+      "title": "Todo List Web Application",
+      "description": "Build a full-stack todo list app with React frontend and Node.js backend. Learn CRUD operations, REST APIs, and database integration.",
+      "difficulty": "beginner",
+      "skills": ["React", "Node.js", "JavaScript", "REST API", "MongoDB"],
+      "estimatedHours": 12,
+      "url": "https://github.com/tastejs/todomvc",
+      "provider": "GitHub",
+      "language": "JavaScript",
+      "stars": 28000,
+      "verified": true
+    },
+    {
+      "title": "Weather Dashboard App",
+      "description": "Create a weather dashboard that fetches data from APIs and displays forecasts. Practice API integration and responsive design.",
+      "difficulty": "beginner",
+      "skills": ["JavaScript", "API Integration", "HTML", "CSS"],
+      "estimatedHours": 8,
+      "url": "https://github.com/public-apis/public-apis",
+      "provider": "GitHub",
+      "language": "Python",
+      "stars": 300000,
+      "verified": true
+    },
+    {
+      "title": "E-commerce Product Catalog",
+      "description": "Build a product catalog with search, filters, and shopping cart. Learn state management, routing, and user authentication.",
+      "difficulty": "intermediate",
+      "skills": ["React", "Redux", "Node.js", "Authentication", "Database"],
+      "estimatedHours": 20,
+      "url": "https://github.com/gothinkster/realworld",
+      "provider": "GitHub",
+      "language": "Various",
+      "stars": 80000,
+      "verified": true
+    }
+  ],
+  "cloud_engineer": [
+    {
+      "title": "AWS Static Website Hosting",
+      "description": "Deploy a static website using AWS S3, CloudFront, and Route 53. Learn cloud storage, CDN, and DNS configuration.",
+      "difficulty": "beginner",
+      "skills": ["AWS", "S3", "CloudFront", "DNS", "Static Hosting"],
+      "estimatedHours": 6,
+      "url": "https://github.com/aws-samples/aws-static-website-hosting",
+      "provider": "GitHub",
+      "language": "HTML",
+      "verified": true
+    },
+    {
+      "title": "Serverless API with Lambda",
+      "description": "Build a serverless REST API using AWS Lambda, API Gateway, and DynamoDB. Learn serverless architecture and event-driven design.",
+      "difficulty": "intermediate",
+      "skills": ["AWS Lambda", "API Gateway", "DynamoDB", "Serverless", "Python"],
+      "estimatedHours": 15,
+      "url": "https://github.com/serverless/examples",
+      "provider": "GitHub",
+      "language": "Various",
+      "stars": 11000,
+      "verified": true
+    },
+    {
+      "title": "Infrastructure as Code with Terraform",
+      "description": "Provision cloud infrastructure using Terraform. Learn IaC principles, version control for infrastructure, and automation.",
+      "difficulty": "intermediate",
+      "skills": ["Terraform", "IaC", "AWS", "DevOps", "Automation"],
+      "estimatedHours": 12,
+      "url": "https://github.com/hashicorp/terraform",
+      "provider": "GitHub",
+      "language": "Go",
+      "stars": 42000,
+      "verified": true
+    }
+  ],
+  "it_help_desk": [
+    {
+      "title": "Ticketing System Setup",
+      "description": "Set up and configure an open-source ticketing system like osTicket. Learn ticket management, SLA configuration, and user support workflows.",
+      "difficulty": "beginner",
+      "skills": ["Ticketing Systems", "Customer Support", "System Administration"],
+      "estimatedHours": 8,
+      "url": "https://github.com/osTicket/osTicket",
+      "provider": "GitHub",
+      "language": "PHP",
+      "stars": 3200,
+      "verified": true
+    },
+    {
+      "title": "Windows Troubleshooting Lab",
+      "description": "Create a virtual lab to practice Windows troubleshooting. Learn common issues, diagnostic tools, and resolution procedures.",
+      "difficulty": "beginner",
+      "skills": ["Windows", "Troubleshooting", "System Administration", "Virtualization"],
+      "estimatedHours": 10,
+      "url": "https://docs.microsoft.com/en-us/troubleshoot/windows-client/",
+      "provider": "Microsoft",
+      "language": "Documentation",
+      "verified": true
+    },
+    {
+      "title": "Network Printer Configuration",
+      "description": "Set up and troubleshoot network printers in a home lab. Learn printer drivers, network protocols, and common printing issues.",
+      "difficulty": "beginner",
+      "skills": ["Networking", "Printers", "Troubleshooting", "TCP/IP"],
+      "estimatedHours": 6,
+      "url": "https://www.comptia.org/training/resources/exam-objectives",
+      "provider": "CompTIA",
+      "language": "Documentation",
+      "verified": true
+    }
+  ],
+  "web_developer": [
+    {
+      "title": "Personal Portfolio Website",
+      "description": "Build a responsive portfolio website showcasing your projects. Learn HTML, CSS, JavaScript, and responsive design principles.",
+      "difficulty": "beginner",
+      "skills": ["HTML", "CSS", "JavaScript", "Responsive Design"],
+      "estimatedHours": 10,
+      "url": "https://github.com/github/personal-website",
+      "provider": "GitHub",
+      "language": "HTML",
+      "stars": 7000,
+      "verified": true
+    },
+    {
+      "title": "Blog Platform with CMS",
+      "description": "Create a blog platform with content management system. Learn database design, user authentication, and CRUD operations.",
+      "difficulty": "intermediate",
+      "skills": ["Node.js", "Express", "MongoDB", "Authentication", "REST API"],
+      "estimatedHours": 18,
+      "url": "https://github.com/strapi/strapi",
+      "provider": "GitHub",
+      "language": "JavaScript",
+      "stars": 62000,
+      "verified": true
+    },
+    {
+      "title": "Real-time Chat Application",
+      "description": "Build a real-time chat app using WebSockets. Learn real-time communication, event handling, and user presence.",
+      "difficulty": "intermediate",
+      "skills": ["WebSockets", "Socket.io", "Node.js", "Real-time", "JavaScript"],
+      "estimatedHours": 15,
+      "url": "https://github.com/socketio/socket.io",
+      "provider": "GitHub",
+      "language": "JavaScript",
+      "stars": 61000,
+      "verified": true
+    }
+  ],
+  "cybersecurity": [
+    {
+      "title": "Vulnerable Web App Pentesting",
+      "description": "Practice penetration testing on intentionally vulnerable web applications like DVWA or WebGoat. Learn common vulnerabilities and exploitation techniques.",
+      "difficulty": "beginner",
+      "skills": ["Penetration Testing", "Web Security", "OWASP", "Ethical Hacking"],
+      "estimatedHours": 12,
+      "url": "https://github.com/digininja/DVWA",
+      "provider": "GitHub",
+      "language": "PHP",
+      "stars": 10000,
+      "verified": true
+    },
+    {
+      "title": "Security Audit Automation",
+      "description": "Create scripts to automate security audits and vulnerability scanning. Learn Python, security tools, and automation.",
+      "difficulty": "intermediate",
+      "skills": ["Python", "Security Automation", "Vulnerability Scanning", "Scripting"],
+      "estimatedHours": 15,
+      "url": "https://github.com/danielmiessler/SecLists",
+      "provider": "GitHub",
+      "language": "Various",
+      "stars": 56000,
+      "verified": true
+    },
+    {
+      "title": "Incident Response Playbook",
+      "description": "Develop an incident response playbook for common security incidents. Learn IR procedures, documentation, and best practices.",
+      "difficulty": "intermediate",
+      "skills": ["Incident Response", "Security Operations", "Documentation", "Forensics"],
+      "estimatedHours": 10,
+      "url": "https://github.com/certsocietegenerale/IRM",
+      "provider": "GitHub",
+      "language": "Markdown",
+      "stars": 1000,
+      "verified": true
+    }
+  ],
+  "ai_ml_engineer": [
+    {
+      "title": "Image Classification with CNN",
+      "description": "Build a convolutional neural network to classify images. Learn deep learning, TensorFlow/PyTorch, and model training.",
+      "difficulty": "intermediate",
+      "skills": ["Python", "TensorFlow", "Deep Learning", "CNN", "Image Processing"],
+      "estimatedHours": 20,
+      "url": "https://github.com/tensorflow/models",
+      "provider": "GitHub",
+      "language": "Python",
+      "stars": 77000,
+      "verified": true
+    },
+    {
+      "title": "Sentiment Analysis NLP Project",
+      "description": "Create a sentiment analysis model for text data. Learn natural language processing, text preprocessing, and model evaluation.",
+      "difficulty": "intermediate",
+      "skills": ["Python", "NLP", "Machine Learning", "Text Analysis", "scikit-learn"],
+      "estimatedHours": 15,
+      "url": "https://github.com/huggingface/transformers",
+      "provider": "GitHub",
+      "language": "Python",
+      "stars": 130000,
+      "verified": true
+    },
+    {
+      "title": "Recommendation System",
+      "description": "Build a recommendation system using collaborative filtering. Learn recommendation algorithms, data processing, and evaluation metrics.",
+      "difficulty": "advanced",
+      "skills": ["Python", "Machine Learning", "Recommendation Systems", "Data Science"],
+      "estimatedHours": 18,
+      "url": "https://github.com/microsoft/recommenders",
+      "provider": "GitHub",
+      "language": "Python",
+      "stars": 18000,
+      "verified": true
+    }
+  ],
+  "general": [
+    {
+      "title": "GitHub Profile README",
+      "description": "Create an impressive GitHub profile README to showcase your skills and projects. Learn Markdown and personal branding.",
+      "difficulty": "beginner",
+      "skills": ["Markdown", "Git", "Personal Branding"],
+      "estimatedHours": 3,
+      "url": "https://github.com/abhisheknaiidu/awesome-github-profile-readme",
+      "provider": "GitHub",
+      "language": "Markdown",
+      "stars": 24000,
+      "verified": true
+    },
+    {
+      "title": "Command Line Tool",
+      "description": "Build a useful command-line tool in your preferred language. Learn CLI development, argument parsing, and user interaction.",
+      "difficulty": "beginner",
+      "skills": ["Python", "CLI", "Scripting", "Tool Development"],
+      "estimatedHours": 8,
+      "url": "https://github.com/jlevy/the-art-of-command-line",
+      "provider": "GitHub",
+      "language": "Markdown",
+      "stars": 152000,
+      "verified": true
+    },
+    {
+      "title": "API Integration Project",
+      "description": "Integrate with public APIs to build a useful application. Learn API authentication, data fetching, and error handling.",
+      "difficulty": "beginner",
+      "skills": ["API Integration", "REST", "JSON", "HTTP"],
+      "estimatedHours": 6,
+      "url": "https://github.com/public-apis/public-apis",
+      "provider": "GitHub",
+      "language": "Python",
+      "stars": 300000,
+      "verified": true
+    }
+  ]
+}
