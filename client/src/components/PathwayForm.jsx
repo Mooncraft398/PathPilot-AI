@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { generatePathway } from '../utils/api';
+import { generateRoadmap, transformRoadmapToPathway } from '../utils/api';
 import { savePathway } from '../utils/localStorage';
 
 /**
@@ -51,17 +51,52 @@ function PathwayForm() {
         throw new Error('Please enter a career goal');
       }
 
-      // Generate pathway
-      const pathway = await generatePathway(formData);
+      console.log('🚀 Starting pathway generation with Watsonx.ai...');
+      console.log('📋 Form data:', formData);
+
+      // Calculate timeframe from weeks
+      const months = Math.ceil(formData.weeks / 4);
+      const timeframe = `${months} month${months !== 1 ? 's' : ''}`;
+
+      // Prepare request for Watsonx.ai roadmap endpoint
+      const roadmapRequest = {
+        careerGoal: formData.goal,
+        currentSkills: [], // User hasn't specified current skills in this form
+        timeframe: timeframe
+      };
+
+      console.log('📡 Calling Watsonx.ai roadmap API...');
+      console.log('Request:', roadmapRequest);
+
+      // Generate roadmap using Watsonx.ai
+      const roadmapResponse = await generateRoadmap(roadmapRequest);
+
+      console.log('✅ Received roadmap from Watsonx.ai');
+      console.log('Response:', roadmapResponse);
+
+      // Transform the Watsonx.ai response to match frontend expectations
+      const pathway = transformRoadmapToPathway(roadmapResponse, {
+        ...formData,
+        timeframe
+      });
+
+      console.log('✅ Pathway transformation complete');
+      console.log('Final pathway object:', pathway);
 
       // Save to localStorage
       savePathway(pathway);
+      console.log('💾 Saved pathway to localStorage');
 
       // Redirect to pathway page
       navigate('/pathway');
     } catch (err) {
+      console.error('❌ Error generating pathway:', err);
+      console.error('Error details:', {
+        message: err.message,
+        cause: err.cause,
+        stack: err.stack
+      });
       setError(err.message || 'Failed to generate pathway. Please try again.');
-      console.error('Error generating pathway:', err);
     } finally {
       setLoading(false);
     }
