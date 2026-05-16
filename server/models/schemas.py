@@ -105,4 +105,57 @@ class ErrorResponse(BaseModel):
     error: str
     detail: Optional[str] = None
 
+
+# Recommendation System Schemas
+
+class RecommendationRequest(BaseModel):
+    """Request model for career recommendations"""
+    preferred_area: Optional[str] = Field(None, description="Preferred career area (e.g., 'Cybersecurity', 'Data & Analytics')")
+    current_skills: List[str] = Field(default=[], description="List of skills the user currently has")
+    hours_per_week: str = Field(..., description="Available hours per week (e.g., '6-10', '10-20')")
+    learning_style: str = Field(..., description="Preferred learning style (e.g., 'Hands-on', 'Visual', 'Reading')")
+
+
+class LearningResource(BaseModel):
+    """A learning resource for a skill"""
+    title: str
+    type: str
+    url: str
+
+
+class Project(BaseModel):
+    """A project for practicing a skill"""
+    title: str
+    description: str
+    difficulty: str
+
+
+class SkillRecommendation(BaseModel):
+    """Recommendations for learning a specific skill"""
+    skill: str
+    resources: List[LearningResource]
+    projects: List[Project]
+    github_search_query: str
+
+
+class CareerMatch(BaseModel):
+    """A matched career with details"""
+    id: str
+    title: str
+    category: str
+    description: str
+    match_percentage: int
+    matched_skills: List[str]
+    missing_skills: List[str]
+    common_tasks: List[str]
+    related_roles: List[str]
+
+
+class RecommendationResponse(BaseModel):
+    """Response model for career recommendations"""
+    career_matches: List[CareerMatch]
+    skill_recommendations: List[SkillRecommendation]
+    total_careers_analyzed: int
+    message: str
+
 # Made with Bob

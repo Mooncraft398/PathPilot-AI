@@ -100,6 +100,34 @@ export const adaptPathway = async (pathway, feedback) => {
 };
 
 /**
+ * Search USAJOBS for federal job postings
+ * @param {string} keyword - Search keyword (e.g., "cybersecurity")
+ * @param {string} location - Optional location (e.g., "Orlando", "Florida")
+ * @returns {Promise<Object>} Job search results with fallback information
+ */
+export const searchUSAJobs = async (keyword, location = null) => {
+  try {
+    const params = new URLSearchParams({ keyword });
+    if (location) {
+      params.append('location', location);
+    }
+    
+    const response = await api.get(`/api/usajobs/search?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to search USAJOBS:', error);
+    
+    if (error.response) {
+      throw new Error(error.response.data.detail || 'Failed to search jobs', { cause: error });
+    } else if (error.request) {
+      throw new Error('Cannot connect to server. Make sure the backend is running at http://localhost:8000', { cause: error });
+    } else {
+      throw new Error('An unexpected error occurred', { cause: error });
+    }
+  }
+};
+
+/**
  * Test the API connection
  * @returns {Promise<boolean>} True if connected, false otherwise
  */

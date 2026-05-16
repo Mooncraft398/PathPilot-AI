@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from models.schemas import HealthResponse
-from routes import pathways
+from routes import pathways, github_projects, recommendations, onet, usajobs
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Create FastAPI app
 app = FastAPI(
@@ -26,6 +30,10 @@ app.add_middleware(
 
 # Include routers
 app.include_router(pathways.router)
+app.include_router(github_projects.router)
+app.include_router(recommendations.router)
+app.include_router(onet.router)
+app.include_router(usajobs.router)
 
 
 @app.get("/", response_model=HealthResponse)
