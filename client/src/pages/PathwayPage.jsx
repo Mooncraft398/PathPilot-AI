@@ -249,7 +249,7 @@ function PathwayPage() {
           </div>
 
           {/* Adapt My Path Section */}
-          <div className="bg-gradient-to-br from-slate-900/80 to-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+          <div className="mt-4 bg-gradient-to-br from-slate-900/80 to-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
             <button
               onClick={() => setShowAdaptSection(!showAdaptSection)}
               className="w-full p-6 md:p-8 flex items-center justify-between hover:bg-slate-800/30 transition-all group"
