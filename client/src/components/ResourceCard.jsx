@@ -67,22 +67,30 @@ function ResourceCard({ resource }) {
       href={resource.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-slate-800 rounded-lg p-4 hover:bg-slate-750 transition-colors border border-slate-700 hover:border-slate-600"
+      className="group block bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 hover:bg-slate-800 transition-all border border-slate-700 hover:border-slate-600 hover:shadow-lg hover:-translate-y-0.5"
     >
-      <div className="flex items-start justify-between mb-2">
-        <div className={`p-2 rounded-lg ${getTypeColor(resource.type)}`}>
+      <div className="flex items-start justify-between mb-3">
+        <div className={`p-2.5 rounded-xl ${getTypeColor(resource.type)} group-hover:scale-110 transition-transform`}>
           {getTypeIcon(resource.type)}
         </div>
         {resource.isFree && (
-          <span className="px-2 py-1 bg-green-500/10 text-green-500 text-xs font-medium rounded border border-green-500/20">
+          <span className="px-2.5 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/30 flex items-center">
+            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
             Free
           </span>
         )}
       </div>
-      <h5 className="font-medium text-white mb-1">{resource.title}</h5>
+      <h5 className="font-bold text-white mb-2 group-hover:text-blue-400 transition-colors leading-snug">{resource.title}</h5>
       <div className="flex items-center justify-between text-sm">
-        <span className="text-slate-400 capitalize">{resource.type}</span>
-        <span className="text-slate-500">{resource.duration}</span>
+        <span className="text-slate-400 capitalize font-medium">{resource.type}</span>
+        <span className="text-slate-500 flex items-center">
+          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {resource.duration}
+        </span>
       </div>
     </a>
   );

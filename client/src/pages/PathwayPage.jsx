@@ -80,23 +80,26 @@ function PathwayPage() {
   // If no pathway exists, show message
   if (!pathway) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="bg-slate-900/50 backdrop-blur-sm rounded-3xl border border-slate-800 p-12">
+            <div className="w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <svg className="w-12 h-12 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">No Pathway Found</h2>
-            <p className="text-slate-400 mb-8">
-              You haven't generated a career pathway yet.
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">No Pathway Yet</h2>
+            <p className="text-lg text-slate-400 mb-8 leading-relaxed">
+              You haven't generated a career pathway yet. Let's create your personalized learning roadmap!
             </p>
             <Link
               to="/generate"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl hover:shadow-purple-500/30"
             >
               Generate Your Pathway
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
           </div>
         </div>
@@ -109,114 +112,177 @@ function PathwayPage() {
   const totalWeeks = pathway.weeks.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2">{pathway.title}</h1>
-              <p className="text-lg text-slate-300">{pathway.summary}</p>
+        <div className="mb-10">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+            <div className="flex-1">
+              <div className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full mb-4">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                <span className="text-green-400 text-xs font-medium">Active Pathway</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">{pathway.title}</h1>
+              <p className="text-lg text-slate-300 leading-relaxed">{pathway.summary}</p>
             </div>
             <button
               onClick={handleClearPathway}
-              className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors border border-slate-700"
+              className="px-5 py-2.5 bg-slate-800/80 backdrop-blur-sm text-slate-300 rounded-xl hover:bg-slate-700 transition-all border border-slate-700 hover:border-slate-600 flex items-center space-x-2 self-start"
             >
-              Clear Pathway
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Clear</span>
             </button>
           </div>
 
-          {/* Pathway Info */}
+          {/* Pathway Info Cards */}
           <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
-              <div className="text-sm text-slate-400 mb-1">Career Goal</div>
-              <div className="text-lg font-semibold text-white">{pathway.goal}</div>
+            <div className="group bg-slate-900/50 backdrop-blur-sm rounded-xl p-5 border border-slate-800 hover:border-blue-500/50 transition-all">
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="text-xs font-medium text-slate-400">Career Goal</div>
+              </div>
+              <div className="text-xl font-bold text-white">{pathway.goal}</div>
             </div>
-            <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
-              <div className="text-sm text-slate-400 mb-1">Skill Level</div>
-              <div className="text-lg font-semibold text-white capitalize">{pathway.level}</div>
+            
+            <div className="group bg-slate-900/50 backdrop-blur-sm rounded-xl p-5 border border-slate-800 hover:border-purple-500/50 transition-all">
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div className="text-xs font-medium text-slate-400">Skill Level</div>
+              </div>
+              <div className="text-xl font-bold text-white capitalize">{pathway.level}</div>
             </div>
-            <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
-              <div className="text-sm text-slate-400 mb-1">Time Commitment</div>
-              <div className="text-lg font-semibold text-white">{pathway.weeklyTimeCommitment}</div>
+            
+            <div className="group bg-slate-900/50 backdrop-blur-sm rounded-xl p-5 border border-slate-800 hover:border-green-500/50 transition-all">
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="text-xs font-medium text-slate-400">Time Commitment</div>
+              </div>
+              <div className="text-xl font-bold text-white">{pathway.weeklyTimeCommitment}</div>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="bg-slate-900 rounded-lg p-6 border border-slate-800">
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold text-white">Your Progress</h3>
-                <span className="text-sm text-slate-400">
+          {/* Progress Section */}
+          <div className="bg-gradient-to-br from-slate-900/80 to-slate-900/50 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-800 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Your Progress</h3>
+                <p className="text-sm text-slate-400">
                   {completedWeeks} of {totalWeeks} weeks completed
-                </span>
+                </p>
               </div>
-              <div className="flex items-center space-x-3">
-                <ProgressBar completed={completedWeeks} total={totalWeeks} />
-                <span className="text-2xl font-bold text-white whitespace-nowrap">
+              <div className="text-right">
+                <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
                   {totalWeeks > 0 ? Math.round((completedWeeks / totalWeeks) * 100) : 0}%
-                </span>
+                </div>
+                <div className="text-xs text-slate-500 mt-1">Complete</div>
               </div>
             </div>
+            <ProgressBar completed={completedWeeks} total={totalWeeks} />
           </div>
 
           {/* Adapt My Path Section */}
-          <div className="bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">
+          <div className="bg-gradient-to-br from-slate-900/80 to-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
             <button
               onClick={() => setShowAdaptSection(!showAdaptSection)}
-              className="w-full p-6 flex items-center justify-between hover:bg-slate-800/50 transition-colors"
+              className="w-full p-6 md:p-8 flex items-center justify-between hover:bg-slate-800/30 transition-all group"
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-purple-500/30">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </div>
                 <div className="text-left">
-                  <h3 className="text-lg font-semibold text-white">Adapt My Path</h3>
+                  <h3 className="text-xl font-bold text-white mb-1">Adapt My Path</h3>
                   <p className="text-sm text-slate-400">Customize your learning journey based on your needs</p>
                 </div>
               </div>
-              <svg
-                className={`w-6 h-6 text-slate-400 transition-transform ${
-                  showAdaptSection ? 'rotate-180' : ''
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              <div className="flex items-center space-x-3">
+                {showAdaptSection && (
+                  <span className="hidden md:inline-block px-3 py-1 bg-purple-500/10 text-purple-400 text-xs font-medium rounded-full border border-purple-500/20">
+                    Expanded
+                  </span>
+                )}
+                <svg
+                  className={`w-6 h-6 text-slate-400 transition-transform ${
+                    showAdaptSection ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </button>
 
             {showAdaptSection && (
-              <div className="border-t border-slate-800 p-6">
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Tell us how you'd like to adjust your pathway:
+              <div className="border-t border-slate-800 p-6 md:p-8 space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-200 mb-3">
+                    How would you like to adjust your pathway?
                   </label>
                   <textarea
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     placeholder="Examples:&#10;• I only have 1 hour per day now&#10;• I want more project-based learning&#10;• I'm struggling with JavaScript&#10;• I need more beginner-friendly resources"
-                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                    rows="4"
+                    className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all"
+                    rows="5"
                   />
+                  <p className="mt-2 text-xs text-slate-500">Be specific about what you'd like to change</p>
                 </div>
 
                 {adaptError && (
-                  <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start space-x-3">
+                    <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
                     <p className="text-red-400 text-sm">{adaptError}</p>
                   </div>
                 )}
 
-                <div className="flex items-center space-x-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <button
                     onClick={handleAdaptPathway}
                     disabled={isAdapting}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 sm:flex-none px-6 py-3.5 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:shadow-purple-500/30 flex items-center justify-center"
                   >
-                    {isAdapting ? 'Adapting...' : 'Adapt Pathway'}
+                    {isAdapting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Adapting...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Adapt Pathway
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => {
@@ -224,22 +290,27 @@ function PathwayPage() {
                       setFeedback('');
                       setAdaptError(null);
                     }}
-                    className="px-6 py-3 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
+                    className="px-6 py-3.5 bg-slate-800/80 backdrop-blur-sm text-slate-300 rounded-xl hover:bg-slate-700 transition-all border border-slate-700"
                   >
                     Cancel
                   </button>
                 </div>
 
                 {pathway.adaptationHistory && pathway.adaptationHistory.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-slate-800">
-                    <h4 className="text-sm font-semibold text-slate-300 mb-3">Adaptation History</h4>
-                    <div className="space-y-2">
+                  <div className="pt-6 border-t border-slate-800">
+                    <h4 className="text-sm font-bold text-slate-200 mb-4 flex items-center">
+                      <svg className="w-4 h-4 mr-2 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                      Adaptation History
+                    </h4>
+                    <div className="space-y-3">
                       {pathway.adaptationHistory.map((note, index) => (
-                        <div key={index} className="text-sm text-slate-400 flex items-start space-x-2">
-                          <svg className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <div key={index} className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-lg">
+                          <svg className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
-                          <span>{note}</span>
+                          <span className="text-sm text-slate-300 leading-relaxed">{note}</span>
                         </div>
                       ))}
                     </div>
