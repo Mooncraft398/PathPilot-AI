@@ -227,14 +227,102 @@ def create_fallback_roadmap(
             "Actively learning and applying best practices in the field"
         ],
         "weeklyPlan": [
-            {"week": 1, "focus": "Getting started and learning fundamentals"},
-            {"week": 2, "focus": "Hands-on practice with basic concepts"},
-            {"week": 3, "focus": "Building your first project"},
-            {"week": 4, "focus": "Expanding your skillset"},
-            {"week": 5, "focus": "Working on portfolio projects"},
-            {"week": 6, "focus": "Refining your projects and documentation"},
-            {"week": 7, "focus": "Resume and LinkedIn optimization"},
-            {"week": 8, "focus": "Interview preparation and job applications"}
+            {
+                "week": 1,
+                "focus": f"Environment Setup & {skills_to_learn[0] if skills_to_learn else 'Fundamentals'}",
+                "topics": [f"Setting up {tools[0] if tools else 'development environment'}", "Basic concepts", "First exercises"],
+                "dailyTasks": [
+                    f"Install and configure {tools[0] if tools else 'required tools'}",
+                    f"Learn basics of {skills_to_learn[0] if skills_to_learn else 'core concepts'}",
+                    "Complete beginner tutorials",
+                    "Join online communities",
+                    "Set up learning schedule"
+                ]
+            },
+            {
+                "week": 2,
+                "focus": f"Core {skills_to_learn[1] if len(skills_to_learn) > 1 else 'Concepts'} & Practice",
+                "topics": [f"{skills_to_learn[1] if len(skills_to_learn) > 1 else 'Core concepts'}", "Hands-on exercises", "Problem solving"],
+                "dailyTasks": [
+                    f"Deep dive into {skills_to_learn[1] if len(skills_to_learn) > 1 else 'fundamentals'}",
+                    "Complete coding challenges",
+                    "Build mini-projects",
+                    "Review and debug code",
+                    "Document your learning"
+                ]
+            },
+            {
+                "week": 3,
+                "focus": f"Advanced {skills_to_learn[2] if len(skills_to_learn) > 2 else 'Topics'} & First Project",
+                "topics": [f"{skills_to_learn[2] if len(skills_to_learn) > 2 else 'Advanced concepts'}", "Project planning", "Best practices"],
+                "dailyTasks": [
+                    f"Learn {skills_to_learn[2] if len(skills_to_learn) > 2 else 'advanced techniques'}",
+                    "Plan your first portfolio project",
+                    "Start project implementation",
+                    "Apply best practices",
+                    "Seek feedback from community"
+                ]
+            },
+            {
+                "week": 4,
+                "focus": f"Mastering {tools[1] if len(tools) > 1 else 'Tools'} & Project Development",
+                "topics": [f"{tools[1] if len(tools) > 1 else 'Professional tools'}", "Version control", "Testing"],
+                "dailyTasks": [
+                    f"Practice with {tools[1] if len(tools) > 1 else 'industry tools'}",
+                    "Continue project development",
+                    "Implement testing",
+                    "Refactor and optimize code",
+                    "Update project documentation"
+                ]
+            },
+            {
+                "week": 5,
+                "focus": "Portfolio Project Completion & Second Project",
+                "topics": ["Project finalization", "Code review", "New project planning"],
+                "dailyTasks": [
+                    "Complete first portfolio project",
+                    "Write comprehensive README",
+                    "Plan second portfolio project",
+                    "Start second project",
+                    "Create project presentation"
+                ]
+            },
+            {
+                "week": 6,
+                "focus": f"Specialization in {career_goal} & Advanced Projects",
+                "topics": [f"{career_goal} specific skills", "Industry standards", "Advanced techniques"],
+                "dailyTasks": [
+                    f"Study {career_goal} best practices",
+                    "Work on specialized project",
+                    "Learn industry tools",
+                    "Network with professionals",
+                    "Attend virtual meetups"
+                ]
+            },
+            {
+                "week": 7,
+                "focus": "Professional Branding & Portfolio Website",
+                "topics": ["Resume writing", "LinkedIn optimization", "Portfolio website"],
+                "dailyTasks": [
+                    "Create professional resume",
+                    "Optimize LinkedIn profile",
+                    "Build portfolio website",
+                    "Showcase your projects",
+                    "Get feedback on materials"
+                ]
+            },
+            {
+                "week": 8,
+                "focus": "Job Search & Interview Preparation",
+                "topics": ["Interview prep", "Technical questions", "Job applications"],
+                "dailyTasks": [
+                    "Practice technical interviews",
+                    "Research target companies",
+                    "Apply to positions",
+                    "Prepare for behavioral questions",
+                    "Mock interviews with peers"
+                ]
+            }
         ],
         "nextSteps": [
             f"Start with the first recommended resource for {skills_to_learn[0] if skills_to_learn else 'your chosen skill'}",
@@ -293,7 +381,13 @@ async def generate_roadmap(request: RoadmapRequest):
         certifications = get_certifications_for_role(request.careerGoal)
         
         # Step 6: Call watsonx.ai to generate roadmap
-        logger.info("Calling watsonx.ai for roadmap generation...")
+        logger.info("=" * 80)
+        logger.info("🤖 ATTEMPTING WATSONX.AI ROADMAP GENERATION")
+        logger.info("=" * 80)
+        logger.info(f"Career Goal: {request.careerGoal}")
+        logger.info(f"Timeframe: {request.timeframe}")
+        logger.info(f"Current Skills: {request.currentSkills}")
+        
         ai_roadmap = await generate_roadmap_with_ai(
             career_goal=request.careerGoal,
             current_skills=request.currentSkills,
@@ -304,10 +398,23 @@ async def generate_roadmap(request: RoadmapRequest):
         
         # Step 7: Handle AI response or create fallback
         if ai_roadmap:
-            logger.info("Successfully generated roadmap with watsonx.ai")
+            logger.info("=" * 80)
+            logger.info("✅ SUCCESS: WATSONX.AI GENERATED ROADMAP")
+            logger.info("=" * 80)
+            logger.info(f"Model: {ai_roadmap.get('metadata', {}).get('model', 'unknown')}")
+            logger.info(f"Tokens: {ai_roadmap.get('metadata', {}).get('tokens', 0)}")
+            logger.info(f"Phases: {len(ai_roadmap.get('phases', []))}")
+            logger.info(f"Weekly Plans: {len(ai_roadmap.get('weeklyPlan', []))}")
+            logger.info("=" * 80)
             roadmap = ai_roadmap
         else:
-            logger.warning("watsonx.ai failed, using fallback roadmap")
+            logger.warning("=" * 80)
+            logger.warning("⚠️  FALLBACK: WATSONX.AI UNAVAILABLE - USING TEMPLATE DATA")
+            logger.warning("=" * 80)
+            logger.warning("This means the roadmap will be generic and not AI-personalized")
+            logger.warning("Check WatsonX API key and credentials in .env file")
+            logger.warning("=" * 80)
+            
             roadmap = create_fallback_roadmap(
                 career_goal=request.careerGoal,
                 current_skills=request.currentSkills,

@@ -146,6 +146,16 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
   const roadmap = roadmapResponse.roadmap || {};
   const metadata = roadmapResponse.metadata || {};
   
+  // Log whether WatsonX was used
+  if (metadata.usedWatsonx === true) {
+    console.log('✅ USING WATSONX.AI GENERATED ROADMAP');
+    console.log(`   Model: ${metadata.model || 'unknown'}`);
+    console.log(`   Tokens: ${metadata.tokens || 0}`);
+  } else {
+    console.warn('⚠️  USING FALLBACK TEMPLATE DATA (WatsonX unavailable)');
+    console.warn(`   Reason: ${metadata.fallbackReason || 'unknown'}`);
+  }
+  
   // Transform phases into weeks
   const weeks = [];
   const phases = roadmap.phases || [];
@@ -167,31 +177,61 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
     const phase = phases[phaseIndex] || phases[0] || {};
     const weekPlan = weeklyPlan[i] || {};
     
-    // Generate daily plan
+    // Generate daily plan using AI-provided data when available
     const dailyPlan = [];
     const daysPerWeek = formData.daysPerWeek || 5;
     const hoursPerDay = formData.hoursPerDay || 2;
     
+    // Use AI-generated daily tasks if available, otherwise create varied tasks
+    const aiDailyTasks = weekPlan.dailyTasks || [];
+    const aiTopics = weekPlan.topics || phase.skills || [];
+    
     for (let day = 1; day <= daysPerWeek; day++) {
+      // Create unique tasks for each day
+      const dayTasks = [];
+      
+      if (aiDailyTasks.length >= day) {
+        // Use AI-generated task for this day
+        dayTasks.push(aiDailyTasks[day - 1]);
+      } else {
+        // Generate varied tasks based on week focus and topics
+        if (day === 1) {
+          dayTasks.push(`Introduction to ${weekPlan.focus || phase.title || 'this week\'s topic'}`);
+        } else if (day === daysPerWeek) {
+          dayTasks.push(`Complete ${weekPlan.focus || 'weekly'} project and review`);
+        } else if (aiTopics[day - 2]) {
+          dayTasks.push(`Deep dive into ${aiTopics[day - 2]}`);
+        } else {
+          dayTasks.push(`Continue practicing ${weekPlan.focus || phase.focus || 'core concepts'}`);
+        }
+      }
+      
+      // Add 2-3 more tasks per day for variety
+      if (aiTopics.length > 0) {
+        const topicIndex = (day - 1) % aiTopics.length;
+        dayTasks.push(`Practice: ${aiTopics[topicIndex]}`);
+      }
+      dayTasks.push(`Work on hands-on exercises`);
+      
       dailyPlan.push({
         day,
-        focus: weekPlan.focus || phase.focus || `Day ${day}: Continue learning`,
-        tasks: [
-          `Study ${phase.title || 'core concepts'}`,
-          `Practice with hands-on exercises`,
-          `Work on weekly project`
-        ],
+        focus: weekPlan.focus || phase.focus || `Day ${day}: ${aiTopics[day - 1] || 'Continue learning'}`,
+        tasks: dayTasks,
         estimatedHours: hoursPerDay
       });
     }
+    
+    // Use week-specific resources if provided by AI
+    const weekResources = weekPlan.resources || roadmap.resources || [];
+    const resourcesForWeek = weekResources.slice(i * 2, i * 2 + 5); // Different resources per week
     
     // Create week object
     weeks.push({
       weekNumber: weekNum,
       title: weekPlan.focus || phase.title || `Week ${weekNum}`,
-      objectives: phase.skills || roadmap.skills?.slice(0, 3) || ['Learn core concepts', 'Practice skills', 'Build projects'],
+      objectives: aiTopics.length > 0 ? aiTopics : (phase.skills || roadmap.skills?.slice(0, 3) || ['Learn core concepts', 'Practice skills', 'Build projects']),
       dailyPlan,
-      resources: (roadmap.resources || []).slice(0, 5).map(r => ({
+      resources: resourcesForWeek.map(r => ({
         title: r.title || r.name || 'Learning Resource',
         type: r.type || 'article',
         url: r.url || r.link || '#',
@@ -199,13 +239,13 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
         isFree: r.isFree !== false
       })),
       guidedProject: {
-        title: (roadmap.portfolioProjects?.[phaseIndex]?.title || `Week ${weekNum} Project`),
-        description: (roadmap.portfolioProjects?.[phaseIndex]?.description || 'Build a practical project'),
-        skills: phase.skills || roadmap.skills?.slice(0, 3) || ['Problem Solving'],
+        title: (roadmap.portfolioProjects?.[phaseIndex]?.title || `Week ${weekNum}: ${weekPlan.focus || 'Practical Project'}`),
+        description: (roadmap.portfolioProjects?.[phaseIndex]?.description || `Build a project demonstrating ${weekPlan.focus || 'your skills'}`),
+        skills: aiTopics.length > 0 ? aiTopics : (phase.skills || roadmap.skills?.slice(0, 3) || ['Problem Solving']),
         estimatedHours: hoursPerDay * 2,
         difficulty: formData.level || 'beginner'
       },
-      resumeBullet: (roadmap.resumeBullets?.[phaseIndex] || `Completed week ${weekNum} of ${formData.goal} training`),
+      resumeBullet: (roadmap.resumeBullets?.[phaseIndex] || `Completed ${weekPlan.focus || `week ${weekNum}`} training in ${formData.goal}`),
       completed: false
     });
   }

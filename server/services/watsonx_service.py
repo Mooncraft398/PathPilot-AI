@@ -20,16 +20,35 @@ class WatsonxService:
     """
     
     def __init__(self):
+        # Load environment variables with detailed logging
         self.api_key = os.getenv("WATSONX_API_KEY")
         self.project_id = os.getenv("WATSONX_PROJECT_ID")
         self.url = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
+        self.model_id = os.getenv("WATSONX_MODEL_ID", "ibm/granite-3-8b-instruct")
         self.iam_token = None
         self.token_expiry = 0
         
-        if not self.api_key:
-            logger.warning("WATSONX_API_KEY not found in environment variables")
-        if not self.project_id:
-            logger.warning("WATSONX_PROJECT_ID not found in environment variables")
+        # Log environment variable status (safely)
+        logger.info("=" * 80)
+        logger.info("🔧 WATSONX SERVICE INITIALIZATION")
+        logger.info("=" * 80)
+        logger.info(f"Loading .env from: {env_path}")
+        logger.info(f".env exists: {env_path.exists()}")
+        
+        if self.api_key:
+            masked_key = self.api_key[:8] + "..." + self.api_key[-4:] if len(self.api_key) > 12 else "***"
+            logger.info(f"✅ WATSONX_API_KEY: {masked_key}")
+        else:
+            logger.error("❌ WATSONX_API_KEY: NOT FOUND")
+            
+        if self.project_id:
+            logger.info(f"✅ WATSONX_PROJECT_ID: {self.project_id}")
+        else:
+            logger.error("❌ WATSONX_PROJECT_ID: NOT FOUND")
+            
+        logger.info(f"✅ WATSONX_URL: {self.url}")
+        logger.info(f"✅ WATSONX_MODEL_ID: {self.model_id}")
+        logger.info("=" * 80)
     
     async def get_iam_token(self) -> Optional[str]:
         """
@@ -40,11 +59,14 @@ class WatsonxService:
         
         # Return cached token if still valid (with 5 min buffer)
         if self.iam_token and time.time() < (self.token_expiry - 300):
+            logger.info("♻️  Using cached IAM token")
             return self.iam_token
         
         if not self.api_key:
-            logger.error("Cannot get IAM token: WATSONX_API_KEY not set")
+            logger.error("❌ Cannot get IAM token: WATSONX_API_KEY not set")
             return None
+        
+        logger.info("🔑 Requesting new IAM token from IBM Cloud...")
         
         try:
             url = "https://iam.cloud.ibm.com/identity/token"
@@ -57,11 +79,26 @@ class WatsonxService:
                 "apikey": self.api_key
             }
             
+            logger.info(f"IAM Token URL: {url}")
+            logger.info(f"Request headers: {headers}")
+            logger.info(f"Grant type: {data['grant_type']}")
+            
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, headers=headers, data=data, timeout=30.0)
                 
+                logger.info(f"IAM Response Status: {response.status_code}")
+                
                 if response.status_code != 200:
-                    logger.error(f"Failed to get IAM token: {response.status_code}")
+                    logger.error(f"❌ Failed to get IAM token: HTTP {response.status_code}")
+                    logger.error(f"Response body: {response.text[:500]}")
+                    
+                    # Try to parse error details
+                    try:
+                        error_data = response.json()
+                        logger.error(f"Error details: {error_data}")
+                    except:
+                        pass
+                    
                     return None
                 
                 token_data = response.json()
@@ -69,10 +106,23 @@ class WatsonxService:
                 expires_in = token_data.get("expires_in", 3600)
                 self.token_expiry = time.time() + expires_in
                 
+                if self.iam_token:
+                    masked_token = self.iam_token[:20] + "..." + self.iam_token[-10:] if len(self.iam_token) > 30 else "***"
+                    logger.info(f"✅ IAM token obtained successfully: {masked_token}")
+                    logger.info(f"Token expires in: {expires_in} seconds")
+                else:
+                    logger.error("❌ No access_token in response")
+                    logger.error(f"Response keys: {list(token_data.keys())}")
+                
                 return self.iam_token
         
+        except httpx.TimeoutException:
+            logger.error("❌ IAM token request timed out")
+            return None
+        
         except Exception as e:
-            logger.error(f"Error getting IAM token: {str(e)}")
+            logger.error(f"❌ Error getting IAM token: {str(e)}")
+            logger.exception("Full exception details:")
             return None
     
     async def generate_text(
@@ -99,14 +149,17 @@ class WatsonxService:
             Dictionary with generated text and metadata, or None on error
         """
         if not self.project_id:
-            logger.error("Cannot generate text: WATSONX_PROJECT_ID not set")
+            logger.error("❌ Cannot generate text: WATSONX_PROJECT_ID not set")
             return None
         
         # Get IAM token
+        logger.info("🔐 Getting IAM token for WatsonX...")
         token = await self.get_iam_token()
         if not token:
-            logger.error("Failed to get IAM token for watsonx.ai")
+            logger.error("❌ Failed to get IAM token for watsonx.ai")
             return None
+        
+        logger.info("✅ IAM token obtained, calling WatsonX API...")
         
         try:
             # Construct API endpoint
@@ -134,6 +187,12 @@ class WatsonxService:
                 "project_id": self.project_id
             }
             
+            logger.info(f"WatsonX Endpoint: {endpoint}")
+            logger.info(f"Model: {model_id}")
+            logger.info(f"Project ID: {self.project_id}")
+            logger.info(f"Max tokens: {max_tokens}")
+            logger.info(f"Prompt length: {len(prompt)} characters")
+            
             # Make request
             async with httpx.AsyncClient() as client:
                 response = await client.post(
@@ -143,28 +202,45 @@ class WatsonxService:
                     timeout=60.0
                 )
                 
+                logger.info(f"WatsonX Response Status: {response.status_code}")
+                
                 if response.status_code != 200:
-                    logger.error(f"watsonx.ai API error: {response.status_code} - {response.text}")
+                    logger.error(f"❌ watsonx.ai API error: HTTP {response.status_code}")
+                    logger.error(f"Response body: {response.text[:1000]}")
+                    
+                    # Try to parse error details
+                    try:
+                        error_data = response.json()
+                        logger.error(f"Error details: {error_data}")
+                    except:
+                        pass
+                    
                     return None
                 
                 result = response.json()
                 
                 # Extract generated text
                 generated_text = result.get("results", [{}])[0].get("generated_text", "")
+                token_count = result.get("results", [{}])[0].get("generated_token_count", 0)
+                
+                logger.info(f"✅ WatsonX generation successful!")
+                logger.info(f"Generated {token_count} tokens")
+                logger.info(f"Response length: {len(generated_text)} characters")
                 
                 return {
                     "generated_text": generated_text,
                     "model_id": model_id,
-                    "token_count": result.get("results", [{}])[0].get("generated_token_count", 0),
+                    "token_count": token_count,
                     "stop_reason": result.get("results", [{}])[0].get("stop_reason", "unknown")
                 }
         
         except httpx.TimeoutException:
-            logger.error("watsonx.ai request timed out")
+            logger.error("❌ watsonx.ai request timed out (60s)")
             return None
         
         except Exception as e:
-            logger.error(f"Error calling watsonx.ai: {str(e)}")
+            logger.error(f"❌ Error calling watsonx.ai: {str(e)}")
+            logger.exception("Full exception details:")
             return None
     
     async def generate_career_roadmap(
@@ -207,8 +283,8 @@ class WatsonxService:
         # Build skills context
         skills_text = ", ".join(current_skills) if current_skills else "none"
         
-        # Construct prompt
-        prompt = f"""You are a career advisor helping someone break into tech. Generate a practical, beginner-friendly career roadmap.
+        # Construct prompt with emphasis on unique weekly content
+        prompt = f"""You are a career advisor helping someone break into tech. Generate a practical, beginner-friendly career roadmap with UNIQUE content for each week.
 
 Career Goal: {career_goal}
 Current Skills: {skills_text}
@@ -234,14 +310,23 @@ Generate a structured JSON roadmap with these sections:
 6. githubProjects: Array of project ideas based on provided GitHub repos
 7. portfolioProjects: Array of 3-5 portfolio project ideas
 8. resumeBullets: Array of 5 resume bullet point templates
-9. weeklyPlan: Array of weekly activities for the timeframe
+9. weeklyPlan: Array of weekly activities with UNIQUE focus for each week:
+   - week: Week number
+   - focus: Specific learning focus for THIS week (must be different from other weeks)
+   - topics: Array of 3-5 specific topics to cover this week
+   - dailyTasks: Array of 3-5 unique daily tasks for this week
+   - resources: Specific resources for this week's topics
 10. nextSteps: Array of immediate action items (5-7 items)
 
-IMPORTANT:
+CRITICAL REQUIREMENTS:
+- Each week in weeklyPlan MUST have DIFFERENT focus, topics, and tasks
+- Week 1 might focus on "Environment Setup & Basics"
+- Week 2 might focus on "Core Concepts & Fundamentals"
+- Week 3 might focus on "Hands-on Practice & Mini Projects"
+- Week 4 might focus on "Building First Portfolio Project"
+- Make each week progressively more advanced
 - Only use the provided resource URLs, never invent fake links
 - Be specific and practical for beginners
-- Focus on free resources when possible
-- Make it actionable with clear next steps
 - Return ONLY valid JSON, no markdown formatting
 
 JSON Response:"""
