@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getPathway, clearPathway, updatePathway } from '../utils/localStorage';
 import { adaptPathway, searchUSAJobs } from '../utils/api';
@@ -84,7 +84,8 @@ function PathwayPage() {
     }
   };
 
-  const handleSearchJobs = async () => {
+  // Memoized search function for manual button clicks
+  const handleSearchJobs = useCallback(async () => {
     if (!pathway?.goal) return;
     
     setJobsLoading(true);
@@ -99,14 +100,30 @@ function PathwayPage() {
     } finally {
       setJobsLoading(false);
     }
-  };
+  }, [pathway, jobLocation]);
 
-  // Auto-search jobs when pathway loads
+  // Auto-search jobs when pathway loads (only once when goal exists and no data yet)
   useEffect(() => {
-    if (pathway?.goal && !jobsData) {
-      handleSearchJobs();
+    // Only auto-search if we have a goal, no existing data, and not currently loading
+    if (pathway?.goal && !jobsData && !jobsLoading) {
+      const autoSearch = async () => {
+        setJobsLoading(true);
+        setJobsError(null);
+        
+        try {
+          const result = await searchUSAJobs(pathway.goal, null);
+          setJobsData(result);
+        } catch (error) {
+          console.error('Error auto-searching jobs:', error);
+          setJobsError(error.message || 'Failed to search jobs');
+        } finally {
+          setJobsLoading(false);
+        }
+      };
+      
+      autoSearch();
     }
-  }, [pathway?.goal]);
+  }, [pathway?.goal, jobsData, jobsLoading]);
 
   // If no pathway exists, show message
   if (!pathway) {
