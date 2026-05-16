@@ -255,7 +255,7 @@ function PathwayPage() {
               className="w-full p-6 md:p-8 flex items-center justify-between hover:bg-slate-800/30 transition-all group"
             >
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-purple-500/30">
+                <div className="w-12 h-12 bg-pink-500/70 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-pink-500/30">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
@@ -313,7 +313,7 @@ function PathwayPage() {
                   <button
                     onClick={handleAdaptPathway}
                     disabled={isAdapting}
-                    className="flex-1 sm:flex-none px-6 py-3.5 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:shadow-purple-500/30 flex items-center justify-center"
+                    className="flex-1 sm:flex-none px-6 py-3.5 bg-pink-500/70 text-white font-bold rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:shadow-purple-500/30 flex items-center justify-center"
                   >
                     {isAdapting ? (
                       <>
