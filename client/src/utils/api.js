@@ -100,6 +100,38 @@ export const adaptPathway = async (pathway, feedback) => {
 };
 
 /**
+ * Generate an AI-powered career roadmap using IBM watsonx.ai
+ * @param {Object} requestData - The roadmap request data
+ * @param {string} requestData.careerGoal - Target career role (e.g., "SOC Analyst")
+ * @param {Array<string>} requestData.currentSkills - List of current skills
+ * @param {string} requestData.timeframe - Available timeframe (e.g., "3 months")
+ * @returns {Promise<Object>} AI-generated roadmap with metadata
+ */
+export const generateRoadmap = async (requestData) => {
+  try {
+    console.log('🤖 Generating AI roadmap with watsonx.ai...');
+    console.log('Request data:', requestData);
+    
+    const response = await api.post('/api/generate-roadmap', requestData, {
+      timeout: 90000, // 90 seconds for AI generation
+    });
+    
+    console.log('✅ Roadmap generated successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Failed to generate roadmap:', error);
+    
+    if (error.response) {
+      throw new Error(error.response.data.detail || 'Failed to generate roadmap', { cause: error });
+    } else if (error.request) {
+      throw new Error('Cannot connect to server. Make sure the backend is running at http://localhost:8000', { cause: error });
+    } else {
+      throw new Error('An unexpected error occurred', { cause: error });
+    }
+  }
+};
+
+/**
  * Search USAJOBS for federal job postings
  * @param {string} keyword - Search keyword (e.g., "cybersecurity")
  * @param {string} location - Optional location (e.g., "Orlando", "Florida")

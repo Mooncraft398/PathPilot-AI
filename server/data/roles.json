@@ -1,0 +1,68 @@
+[
+  {
+    "id": "soc-analyst",
+    "title": "SOC Analyst",
+    "category": "Cybersecurity",
+    "description": "Security Operations Center (SOC) Analysts monitor and defend against cyber threats in real-time. They analyze security alerts, investigate incidents, and respond to breaches.",
+    "coreSkills": ["Security Monitoring", "Incident Response", "SIEM Tools", "Network Security", "Log Analysis"],
+    "tools": ["Splunk", "Wireshark", "Nmap", "Metasploit", "Security Onion", "ELK Stack"],
+    "certifications": ["CompTIA Security+", "CEH", "GIAC GSEC", "CySA+"],
+    "beginnerKeywords": ["soc", "security monitoring", "incident response", "cybersecurity beginner"],
+    "estimatedTimeToJob": "3-6 months with intensive study"
+  },
+  {
+    "id": "it-help-desk",
+    "title": "IT Help Desk",
+    "category": "IT Support",
+    "description": "IT Help Desk technicians provide first-line technical support to end users, troubleshooting hardware, software, and network issues.",
+    "coreSkills": ["Troubleshooting", "Customer Service", "Windows/Mac OS", "Active Directory", "Ticketing Systems"],
+    "tools": ["ServiceNow", "Jira Service Desk", "Remote Desktop", "Active Directory", "Office 365"],
+    "certifications": ["CompTIA A+", "CompTIA Network+", "ITIL Foundation", "Microsoft 365 Certified"],
+    "beginnerKeywords": ["help desk", "it support", "troubleshooting", "technical support"],
+    "estimatedTimeToJob": "2-4 months"
+  },
+  {
+    "id": "network-technician",
+    "title": "Network Technician",
+    "category": "Networking",
+    "description": "Network Technicians install, configure, and maintain computer networks. They ensure reliable connectivity and troubleshoot network issues.",
+    "coreSkills": ["Networking Fundamentals", "TCP/IP", "Routing & Switching", "Network Troubleshooting", "Cabling"],
+    "tools": ["Cisco IOS", "Wireshark", "PuTTY", "Network Analyzers", "Cable Testers"],
+    "certifications": ["CompTIA Network+", "CCNA", "CompTIA A+"],
+    "beginnerKeywords": ["networking", "cisco", "network admin", "tcp ip"],
+    "estimatedTimeToJob": "3-5 months"
+  },
+  {
+    "id": "cybersecurity-analyst",
+    "title": "Cybersecurity Analyst",
+    "category": "Cybersecurity",
+    "description": "Cybersecurity Analysts protect organizations from cyber threats by implementing security measures, conducting risk assessments, and monitoring for vulnerabilities.",
+    "coreSkills": ["Risk Assessment", "Vulnerability Management", "Security Frameworks", "Penetration Testing", "Compliance"],
+    "tools": ["Nessus", "Burp Suite", "Metasploit", "Kali Linux", "Nmap", "OWASP ZAP"],
+    "certifications": ["CompTIA Security+", "CEH", "CISSP", "CISM"],
+    "beginnerKeywords": ["cybersecurity", "infosec", "penetration testing", "ethical hacking"],
+    "estimatedTimeToJob": "4-6 months"
+  },
+  {
+    "id": "cloud-support-associate",
+    "title": "Cloud Support Associate",
+    "category": "Cloud Computing",
+    "description": "Cloud Support Associates help customers deploy and manage cloud infrastructure, troubleshoot issues, and optimize cloud resources.",
+    "coreSkills": ["Cloud Fundamentals", "AWS/Azure/GCP", "Linux", "Networking", "Troubleshooting"],
+    "tools": ["AWS Console", "Azure Portal", "Terraform", "Docker", "Kubernetes"],
+    "certifications": ["AWS Cloud Practitioner", "Azure Fundamentals", "Google Cloud Associate"],
+    "beginnerKeywords": ["cloud computing", "aws", "azure", "cloud support"],
+    "estimatedTimeToJob": "3-5 months"
+  },
+  {
+    "id": "software-developer",
+    "title": "Software Developer",
+    "category": "Software Development",
+    "description": "Software Developers design, code, test, and maintain software applications. They work with various programming languages and frameworks.",
+    "coreSkills": ["Programming", "Data Structures", "Algorithms", "Version Control", "Testing"],
+    "tools": ["Git", "VS Code", "Docker", "Postman", "Jenkins"],
+    "certifications": ["AWS Developer Associate", "Microsoft Certified Developer", "Oracle Java Certification"],
+    "beginnerKeywords": ["programming", "software development", "coding", "web development"],
+    "estimatedTimeToJob": "6-12 months"
+  }
+]

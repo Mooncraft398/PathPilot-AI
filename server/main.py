@@ -1,16 +1,20 @@
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables FIRST, before any other imports
+# This ensures all modules can access environment variables when they're imported
+env_path = Path(__file__).parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 from models.schemas import HealthResponse
-from routes import pathways, github_projects, recommendations, onet, usajobs
-
-# Load environment variables from .env file
-load_dotenv()
+from routes import pathways, github_projects, recommendations, onet, usajobs, roadmap
 
 # Create FastAPI app
 app = FastAPI(
     title="PathPilot AI API",
-    description="Career pathway generator API for the IBM Bob Hackathon",
+    description="Career pathway generator API for the IBM Bob Hackathon with watsonx.ai integration",
     version="1.0.0"
 )
 
@@ -29,6 +33,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(roadmap.router)  # AI-powered roadmap generator
 app.include_router(pathways.router)
 app.include_router(github_projects.router)
 app.include_router(recommendations.router)
