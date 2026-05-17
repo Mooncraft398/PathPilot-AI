@@ -171,6 +171,18 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
   console.log(`   GitHub Projects: ${roadmap.githubProjects?.length || 0}`);
   console.log(`   Portfolio Projects: ${roadmap.portfolioProjects?.length || 0}`);
   
+  // DEBUG: Check if weeklyPlan items have resources
+  console.log('\n📊 RESOURCE ALLOCATION CHECK:');
+  console.log(`   Global resources: ${roadmap.resources?.length || 0}`);
+  if (roadmap.weeklyPlan && roadmap.weeklyPlan.length > 0) {
+    roadmap.weeklyPlan.forEach((week, idx) => {
+      const weekNum = week.week || idx + 1;
+      const resourceCount = week.resources?.length || 0;
+      console.log(`   Week ${weekNum}: ${resourceCount} resources ${resourceCount > 0 ? '✅' : '❌'}`);
+    });
+  }
+  console.log('=' .repeat(80));
+  
   // Transform phases into weeks
   const weeks = [];
   const phases = roadmap.phases || [];
@@ -274,22 +286,38 @@ export const transformRoadmapToPathway = (roadmapResponse, formData) => {
     // Use week-specific resources from weekPlan if available
     let resourcesForWeek = weekPlan.resources || [];
     
+    console.log(`\n📚 Week ${weekNum} BEFORE allocation:`, {
+      weekPlanHasResources: !!weekPlan.resources,
+      weekPlanResourcesLength: weekPlan.resources?.length || 0,
+      resourcesForWeekLength: resourcesForWeek.length
+    });
+    
     // Fallback: if backend didn't allocate, distribute from roadmap.resources
     if (resourcesForWeek.length === 0) {
+        console.warn(`⚠️  Week ${weekNum}: Backend didn't allocate resources, using fallback`);
         const allResources = roadmap.resources || [];
+        console.log(`   Total global resources: ${allResources.length}`);
+        
         const resourcesPerWeek = Math.max(Math.ceil(allResources.length / totalWeeks), 1);
+        console.log(`   Resources per week (calculated): ${resourcesPerWeek}`);
+        
         const startIdx = i * resourcesPerWeek;
         const endIdx = Math.min(startIdx + resourcesPerWeek, allResources.length);
+        console.log(`   Slicing resources[${startIdx}:${endIdx}]`);
+        
         resourcesForWeek = allResources.slice(startIdx, endIdx);
+        console.log(`   Resources after slice: ${resourcesForWeek.length}`);
         
         if (resourcesForWeek.length === 0 && allResources.length > 0) {
             const reuseIdx = i % allResources.length;
             resourcesForWeek = [allResources[reuseIdx]];
-            console.warn(`⚠️  Week ${weekNum} had 0 resources, reusing resource ${reuseIdx + 1}`);
+            console.warn(`   ⚠️  Reusing resource ${reuseIdx + 1}`);
         }
+    } else {
+        console.log(`✅ Week ${weekNum}: Using ${resourcesForWeek.length} resources from backend weekPlan`);
     }
     
-    console.log(`\n📚 Week ${weekNum} resources (${resourcesForWeek.length}):`, resourcesForWeek);
+    console.log(`\n📚 Week ${weekNum} AFTER allocation (${resourcesForWeek.length} resources):`, resourcesForWeek.map(r => r.title));
     
     // Map resources with proper field handling and URL validation
     const mappedResources = resourcesForWeek.map((r, idx) => {

@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import ResourceCard from './ResourceCard';
-import ProjectCard from './ProjectCard';
 
 /**
  * Week card component - Displays a single week's learning plan
  */
 function WeekCard({ week, onToggleComplete }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedDays, setExpandedDays] = useState({});
+  
+  const toggleDayExpanded = (dayNumber) => {
+    setExpandedDays(prev => ({
+      ...prev,
+      [dayNumber]: !prev[dayNumber]
+    }));
+  };
 
   const handleCheckboxClick = (e) => {
     e.stopPropagation(); // Prevent expanding/collapsing when clicking checkbox
@@ -105,9 +112,9 @@ function WeekCard({ week, onToggleComplete }) {
             </ul>
           </div>
 
-          {/* Daily Plan */}
+          {/* Daily Plan - Compact Design */}
           <div>
-            <h4 className="text-lg font-bold text-white mb-4 flex items-center">
+            <h4 className="text-lg font-bold text-white mb-3 flex items-center">
               <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center mr-3">
                 <svg className="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
@@ -115,30 +122,53 @@ function WeekCard({ week, onToggleComplete }) {
               </div>
               Daily Plan
             </h4>
-            <div className="space-y-3">
-              {week.dailyPlan.map((day) => (
-                <div key={day.day} className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 border border-slate-700 hover:border-slate-600 transition-all">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-bold text-white flex items-center">
-                      <span className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-sm mr-3">
-                        {day.day}
+            <div className="space-y-2">
+              {week.dailyPlan.map((day) => {
+                const maxVisibleTasks = 3;
+                const hasMoreTasks = day.tasks.length > maxVisibleTasks;
+                const isDayExpanded = expandedDays[day.day];
+                const visibleTasks = isDayExpanded ? day.tasks : day.tasks.slice(0, maxVisibleTasks);
+                
+                return (
+                  <div key={day.day} className="bg-slate-800/30 backdrop-blur-sm rounded-lg p-3 border border-slate-700/50 hover:border-slate-600/50 transition-all">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-semibold text-white flex items-center">
+                        <span className="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-md flex items-center justify-center text-xs mr-2">
+                          {day.day}
+                        </span>
+                        <span className="text-slate-200">{day.focus}</span>
                       </span>
-                      {day.focus}
-                    </span>
-                    <span className="px-3 py-1 bg-purple-500/10 text-purple-400 text-xs font-bold rounded-full border border-purple-500/20">
-                      {day.estimatedHours}h
-                    </span>
+                      <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 text-xs font-semibold rounded-full border border-purple-500/20">
+                        {day.estimatedHours}h
+                      </span>
+                    </div>
+                    <ul className="space-y-1 text-xs text-slate-300 pl-8">
+                      {visibleTasks.map((task, index) => (
+                        <li key={index} className="flex items-start space-x-1.5">
+                          <span className="text-purple-400 text-xs mt-0.5">•</span>
+                          <span className="leading-snug">{task}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {hasMoreTasks && (
+                      <button
+                        onClick={() => toggleDayExpanded(day.day)}
+                        className="mt-2 ml-8 text-xs text-purple-400 hover:text-purple-300 font-medium transition-colors flex items-center space-x-1"
+                      >
+                        <span>{isDayExpanded ? 'Show less' : `Show ${day.tasks.length - maxVisibleTasks} more`}</span>
+                        <svg
+                          className={`w-3 h-3 transition-transform ${isDayExpanded ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
-                  <ul className="space-y-2 text-sm text-slate-300">
-                    {day.tasks.map((task, index) => (
-                      <li key={index} className="flex items-start space-x-2 pl-11">
-                        <span className="text-purple-400 font-bold">•</span>
-                        <span className="leading-relaxed">{task}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -166,19 +196,6 @@ function WeekCard({ week, onToggleComplete }) {
                 <p className="text-slate-400 text-sm">No resources available for this week</p>
               </div>
             )}
-          </div>
-
-          {/* Guided Project */}
-          <div>
-            <h4 className="text-lg font-bold text-white mb-4 flex items-center">
-              <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center mr-3">
-                <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-              Guided Project
-            </h4>
-            <ProjectCard project={week.guidedProject} />
           </div>
 
           {/* Resume Bullet */}

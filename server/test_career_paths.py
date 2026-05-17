@@ -31,8 +31,8 @@ async def test_career_path(career_goal: str, timeframe: str):
             return False
         
         print(f"✅ Role matched: {role_data.get('title', 'Unknown')}")
-        skills = role_data.get("skills", [])
-        print(f"   Skills: {', '.join(skills[:5])}")
+        skills = role_data.get("coreSkills", [])
+        print(f"   Skills: {', '.join(skills[:5]) if skills else 'None'}")
         
         # Step 2: Get resources
         resources = get_resources_for_skills(skills=skills, career_goal=career_goal)
@@ -48,7 +48,9 @@ async def test_career_path(career_goal: str, timeframe: str):
         github_result = await search_github_projects(skill=search_skill)
         
         # Handle response (could be GitHubProjectsResponse or ErrorResponse)
-        if hasattr(github_result, 'repositories'):
+        from models.schemas import GitHubProjectsResponse, ErrorResponse
+        
+        if isinstance(github_result, GitHubProjectsResponse):
             github_projects = [
                 {
                     "name": repo.name,
@@ -59,8 +61,11 @@ async def test_career_path(career_goal: str, timeframe: str):
                 for repo in github_result.repositories
             ]
             print(f"✅ GitHub projects found: {len(github_projects)}")
+        elif isinstance(github_result, ErrorResponse):
+            print(f"⚠️  GitHub search failed: {github_result.error}")
+            github_projects = []
         else:
-            print(f"⚠️  GitHub search failed: {getattr(github_result, 'error', 'Unknown error')}")
+            print(f"⚠️  GitHub search returned unexpected type")
             github_projects = []
         
         # Step 4: Test watsonx generation (if credentials available)

@@ -41,10 +41,31 @@ def normalize_roadmap_response(
         "githubProjects": roadmap.get("githubProjects", []),
         "portfolioProjects": roadmap.get("portfolioProjects", []),
         "resumeBullets": roadmap.get("resumeBullets", []),
-        "weeklyPlan": roadmap.get("weeklyPlan", []),
+        "weeklyPlan": [],  # Will be validated below
         "nextSteps": roadmap.get("nextSteps", []),
         "certifications": roadmap.get("certifications", [])
     }
+    
+    # CRITICAL FIX: Preserve week.resources arrays in weeklyPlan
+    # The enforcer adds resources to each week, but shallow copy loses them
+    logger.info("🔧 Validating weeklyPlan and preserving week.resources...")
+    validated_weekly_plan = []
+    for i, week in enumerate(roadmap.get("weeklyPlan", [])):
+        # Preserve all week fields including the resources array
+        validated_week = {
+            **week,  # Preserve all existing fields
+            "resources": week.get("resources", [])  # Explicitly preserve resources array
+        }
+        
+        # Log resource count for debugging
+        resource_count = len(validated_week.get("resources", []))
+        week_num = week.get("week", i + 1)
+        logger.info(f"   Week {week_num}: {resource_count} resources preserved")
+        
+        validated_weekly_plan.append(validated_week)
+    
+    normalized["weeklyPlan"] = validated_weekly_plan
+    logger.info(f"✅ Preserved resources in {len(validated_weekly_plan)} weeks")
     
     # Ensure githubProjects is always an array
     if not isinstance(normalized["githubProjects"], list):

@@ -5,6 +5,8 @@ Enforces backend requirements: correct timeframe, resource allocation, GitHub va
 
 import logging
 import re
+import json
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -245,9 +247,90 @@ def filter_invalid_github_projects(
         else:
             invalid_count += 1
             logger.warning(f"   ❌ Project {i+1}: {project.get('name', 'Unknown')} - INVALID ({reason})")
-    
     logger.info(f"   Valid projects: {len(valid_projects)}")
     logger.info(f"   Invalid projects removed: {invalid_count}")
+    
+    return valid_projects
+
+
+def enrich_resources_from_verified_data(
+    career_goal: str,
+    existing_resources: List[Dict[str, Any]],
+    target_count: int
+) -> List[Dict[str, Any]]:
+    """
+    Enrich resources by loading additional verified resources from data file.
+    
+    Args:
+        career_goal: User's career goal
+        existing_resources: Resources already in roadmap
+        target_count: Target number of resources needed
+    
+    Returns:
+        Enriched list of resources
+    """
+    logger.info(f"🔍 Enriching resources for '{career_goal}'")
+    logger.info(f"   Current: {len(existing_resources)} resources")
+    logger.info(f"   Target: {target_count} resources")
+    
+    if len(existing_resources) >= target_count:
+        logger.info("   ✅ Already have enough resources")
+        return existing_resources
+    
+    # Load verified resources
+    data_dir = Path(__file__).parent.parent / "data"
+    verified_resources_path = data_dir / "verified_resources.json"
+    
+    if not verified_resources_path.exists():
+        logger.warning(f"   ⚠️  Verified resources file not found: {verified_resources_path}")
+        return existing_resources
+    
+    try:
+        with open(verified_resources_path, 'r', encoding='utf-8') as f:
+            verified_data = json.load(f)
+    except Exception as e:
+        logger.error(f"   ❌ Error loading verified resources: {e}")
+        return existing_resources
+    
+    # Normalize career goal to match data keys
+    career_key = career_goal.lower().replace(" ", "_").replace("-", "_")
+    
+    # Try exact match first
+    career_resources = verified_data.get(career_key, {}).get("resources", [])
+    
+    # If no exact match, try partial matches
+    if not career_resources:
+        for key in verified_data.keys():
+            if career_key in key or key in career_key:
+                career_resources = verified_data[key].get("resources", [])
+                logger.info(f"   📌 Using resources from '{key}' (partial match)")
+                break
+    
+    if not career_resources:
+        logger.warning(f"   ⚠️  No verified resources found for '{career_goal}'")
+        return existing_resources
+    
+    logger.info(f"   📚 Found {len(career_resources)} verified resources")
+    
+    # Get existing resource titles to avoid duplicates
+    existing_titles = {r.get("title", "").lower() for r in existing_resources}
+    
+    # Add new resources until we reach target
+    enriched = existing_resources.copy()
+    for resource in career_resources:
+        if len(enriched) >= target_count:
+            break
+        
+        # Skip if already exists
+        if resource.get("title", "").lower() in existing_titles:
+            continue
+        
+        enriched.append(resource)
+        logger.info(f"   ➕ Added: {resource.get('title', 'Unknown')}")
+    
+    logger.info(f"   ✅ Enriched to {len(enriched)} resources")
+    return enriched
+
     
     return valid_projects
 
@@ -286,6 +369,19 @@ def enforce_roadmap_requirements(
     # Step 3: Get all resources
     all_resources = roadmap.get("resources", [])
     logger.info(f"📚 Total resources available: {len(all_resources)}")
+    
+    # Step 3.5: Enrich resources if not enough for 2 per week
+    target_resources = total_weeks * 2  # Target 2 resources per week
+    if len(all_resources) < target_resources:
+        logger.warning(f"⚠️  Only {len(all_resources)} resources for {total_weeks} weeks (need {target_resources})")
+        logger.info("🔍 Enriching with verified resources...")
+        all_resources = enrich_resources_from_verified_data(
+            career_goal=career_goal,
+            existing_resources=all_resources,
+            target_count=target_resources
+        )
+        roadmap["resources"] = all_resources
+        logger.info(f"✅ Resources after enrichment: {len(all_resources)}")
     
     # Step 4: Allocate resources to weeks
     roadmap = allocate_resources_to_weeks(roadmap, total_weeks, all_resources)
